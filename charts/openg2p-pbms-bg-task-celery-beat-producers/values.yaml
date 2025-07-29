@@ -147,7 +147,7 @@ envVars:
   BG_TASK_CELERY_BEAT_PRODUCER_FREQUENCY: 10
   BG_TASK_CELERY_BEAT_BATCH_SIZE: 2000
   BG_TASK_CELERY_BEAT_NO_OF_TASKS_TO_PROCESS: 2
-  
+
   # Background Task Database
   BG_TASK_CELERY_BEAT_DB_USERNAME: 'postgres'
   BG_TASK_CELERY_BEAT_DB_HOSTNAME: '{{ tpl .Values.postgresqlInstallationName $ }}'

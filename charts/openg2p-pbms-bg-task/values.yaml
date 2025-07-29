@@ -20,7 +20,7 @@ openg2p-pbms-bg-task-api:
 
 openg2p-pbms-bg-task-celery-beat-producers:
   enabled: true
-  nameOverride: celery-beat-producer    
+  nameOverride: celery-beat-producer
 
 openg2p-pbms-bg-task-celery-workers:
   enabled: true
