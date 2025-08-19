@@ -1,0 +1,171 @@
+global:
+  keycloakBaseUrl: https://keycloak.openg2p.sandbox.net
+  keycloakIssuerUrl: '{{ tpl .Values.global.keycloakBaseUrl $ }}/realms/master'
+
+  sysAdminEmail: admin@openg2p.sandbox.net
+
+# TODO: change
+hostname: pbms-gen2.dev.openg2p.org
+
+odoo:
+  enabled: true
+
+  oidcIssuerUrl: '{{ tpl .Values.global.keycloakIssuerUrl $ }}'
+  oidcClientId: 'openg2p-pbms-{{ .Release.Namespace }}'
+  oidcClientSecret: ''
+
+  extraAddonsUrlsToPull: ''
+
+  image:
+    repository: tahzeer/openg2p-pbms-core
+    tag: 2.0.0
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  # TODO: Remove this and use global.sysAdminEmail
+  odooEmail: admin@openg2p.org
+
+  postgresql:
+    enabled: true
+    auth:
+      username: pbmsuser
+      database: pbmsdb
+    primary:
+      extendedConfiguration: |-
+        wal_level = logical
+        max_wal_senders = 20
+        max_replication_slots = 10
+    istio:
+      enabled: false
+      virtualservice:
+        enabled: true
+        host: "*"
+        gateway: ""
+        matchPort: 5432
+        destination: '{{ include "postgresql.v1.primary.fullname" .Subcharts.odoo.Subcharts.postgresql }}'
+        destinationPort: "5432"
+      gateway:
+        enabled: true
+        port: 5432
+        host: "*"
+        ingressController:
+          istio: ingressgateway
+        tls:
+          enabled: false
+          mode: SIMPLE
+          credentialName: ""
+
+  livenessProbe:
+    enabled: false
+
+  # TODO: Template the following variables from helm values, instead of hardcoding
+  extraEnvVars:
+  - name: ODOO_SKIP_MODULES_UPDATE
+    value: "yes"
+  - name: LIMIT_TIME_REAL
+    value: "5000"
+  - name: LIST_DB
+    value: "False"
+  - name: SERVER_WIDE_MODULES
+    value: web,queue_job
+  # not using bitnami smtpHost and smtpPort variables, because they need user and pass as well.
+  - name: LOG_HANDLER
+    value: '[":INFO"]'
+  - name: LOG_DB
+    value: "False"
+  - name: EXTRA_ADDONS_URLS_TO_PULL
+    value: '{{ tpl .Values.extraAddonsUrlsToPull $ }}'
+
+keymanager:
+  enabled: false
+  hostname: keymanager-pbms.openg2p.sandbox.net
+  springConfig:
+    names: application,kernel
+    profile: default
+    gitRepo:
+      enabled: true
+      repoUrl: https://github.com/openg2p/mosip-config
+      branch: master
+    rawConfig: ""
+  envVars:
+    auth_server_admin_allowed_audience: 'openg2p-sr,openg2p-sr-{{ .Release.Namespace }},openg2p-pbms,openg2p-pbms-{{ .Release.Namespace }},openg2p-spar-{{ .Release.Namespace }}'
+  postgresInit:
+    commonAnnotations:
+      "helm.sh/hook-weight": "0"
+  keygen:
+    commonAnnotations:
+      "helm.sh/hook-weight": "1"
+
+minio:
+  enabled: true
+  hostname: minio-pbms.openg2p.sandbox.net
+  persistence:
+    enabled: true
+    size: 16Gi
+
+  oidcWellKnownConfigUrl: '{{ tpl .Values.global.keycloakIssuerUrl $ }}/.well-known/openid-configuration'
+  oidcClientId: 'openg2p-pbms-minio-{{ .Release.Namespace }}'
+  oidcClientSecret: ''
+
+  extraEnvVars:
+  - name: MINIO_IDENTITY_OPENID_CONFIG_URL
+    value: '{{ tpl .Values.oidcWellKnownConfigUrl $ }}'
+  - name: MINIO_IDENTITY_OPENID_CLIENT_ID
+    value: '{{ tpl .Values.oidcClientId $ }}'
+  - name: MINIO_IDENTITY_OPENID_CLIENT_SECRET
+    value: '{{ tpl .Values.oidcClientSecret $ }}'
+  - name: MINIO_IDENTITY_OPENID_DISPLAY_NAME
+    value: Keycloak
+  - name: MINIO_IDENTITY_OPENID_CLAIM_NAME
+    value: client_roles
+  - name: MINIO_IDENTITY_OPENID_SCOPES
+    value: openid,profile,email
+  - name: MINIO_IDENTITY_OPENID_REDIRECT_URI_DYNAMIC
+    value: "on"
+  - name: MINIO_IDENTITY_OPENID_CLAIM_USERINFO
+    value: "on"
+
+  istio:
+    enabled: true
+    virtualservice:
+      enabled: true
+      host: ""
+      gateway: "internal"
+      destination: '{{ include "common.names.fullname" .Subcharts.minio }}'
+      destinationPort: "9001"
+    gateway:
+      enabled: false
+      host: ""
+      ingressController:
+        istio: ingressgateway
+      httpTlsRedirect: true
+      httpEnabled: true
+      httpsEnabled: false
+      tls:
+        mode: SIMPLE
+        credentialName: ""
+
+istio:
+  enabled: true
+  virtualservice:
+    enabled: true
+    host: ""
+    gateway: "internal"
+    destination: '{{ include "common.names.fullname" .Subcharts.odoo }}'
+    destinationPort: '{{ .Values.odoo.service.port }}'
+    prefix: /
+    rewriteUri: ""
+  gateway:
+    enabled: false
+    host: ""
+    ingressController:
+      istio: ingressgateway
+    httpTlsRedirect: true
+    httpEnabled: true
+    httpsEnabled: false
+    tls:
+      mode: SIMPLE
+      credentialName: ""

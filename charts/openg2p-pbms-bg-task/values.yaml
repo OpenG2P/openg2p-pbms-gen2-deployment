@@ -39,7 +39,7 @@ postgresql:
     userPasswords:
       keymgruser: ""
   primary:
-    resourcesPreset: "small"
+    # resourcesPreset: "small"
     extendedConfiguration: |-
       wal_level = logical
       max_wal_senders = 20
