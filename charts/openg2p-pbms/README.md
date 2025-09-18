@@ -3,5 +3,6 @@
 This contains the following components:
 
 - PBMS Odoo Package (Odoo + PostgreSQL)
+- PBMS Background Tasks (API, Celery)
 - MinIO
 - Keymanager
