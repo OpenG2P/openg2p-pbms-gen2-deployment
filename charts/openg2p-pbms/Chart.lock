@@ -1,0 +1,15 @@
+dependencies:
+- name: odoo
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 26.2.9
+- name: openg2p-pbms-bg-task
+  repository: ""
+  version: 3.0.0
+- name: minio
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 12.12.2
+- name: keymanager
+  repository: https://openg2p.github.io/openg2p-helm
+  version: 12.0.1
+digest: sha256:ea8a2a80df8193bf57ecffe45d74e5c0fd141dd42475ef68f9a5b5eb5b4cd6b8
+generated: "2025-09-18T17:15:04.880805568+05:30"

@@ -2,7 +2,7 @@ apiVersion: v2
 name: openg2p-pbms-bg-task-api
 description: A Helm chart for OpenG2P G2P PBMS Background Task API
 type: application
-version: 2.0-develop
+version: 3.0.0
 dependencies:
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts
