@@ -17,8 +17,8 @@ odoo:
   extraAddonsUrlsToPull: ''
 
   image:
-    repository: tahzeer/openg2p-pbms-core
-    tag: 2.0.0
+    repository: openg2p/openg2p-pbms-core
+    tag: "3.0.0"
     pullPolicy: Always
 
   service:
@@ -147,6 +147,11 @@ minio:
       tls:
         mode: SIMPLE
         credentialName: ""
+
+serviceProviderIngress:
+  enabled: false
+selfServiceIngress:
+  enabled: false
 
 istio:
   enabled: true
