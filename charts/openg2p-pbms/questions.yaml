@@ -5,87 +5,62 @@ questions:
   label: Hostname
   group: General Settings
 
-- variable: selfServiceHostname
-  description: Hostname to access OpenG2P PBMS Self Service Portal
-  type: string
-  label: Self Service Portal Hostname
-  group: General Settings
-
-- variable: serviceProviderHostname
-  description: Hostname to access OpenG2P PBMS Service Provider Portal
-  type: string
-  label: Service Provider Portal Hostname
-  group: General Settings
-
 - variable: global.keycloakBaseUrl
-  description: Keycloak Base Url used in all components
+  description: Keycloak Base URL used in all components (e.g. https://keycloak.openg2p.sandbox.net)
   type: string
   label: Keycloak Base URL
   group: General Settings
 
+- variable: odoo.enabled
+  description: Enable Odoo (PBMS Core)
+  type: boolean
+  label: Enable PBMS Core (Odoo)
+  group: General Settings
+
 - variable: odoo.oidcClientId
-  description: OIDC Client ID for PBMS
+  description: OIDC Client ID for PBMS (Odoo)
   type: string
   label: OIDC Client ID
   group: General Settings
+  show_if: "odoo.enabled=true"
 
 - variable: odoo.oidcClientSecret
-  description: OIDC Client Secret for PBMS
+  description: OIDC Client Secret for PBMS (Odoo)
   type: string
   label: OIDC Client Secret
   group: General Settings
+  show_if: "odoo.enabled=true"
 
 - variable: odoo.extraAddonsUrlsToPull
   description: |-
-    Comma separated.
-    Example git://17.0-develop//https://github.com/openg2p/openg2p-registry.
+    Comma separated list of extra Odoo addons to pull.
+    Example: git://17.0-develop//https://github.com/openg2p/openg2p-registry
   type: string
-  label: List of additional addons to be pulled.
+  label: List of additional addons to be pulled
   group: General Settings
+  show_if: "odoo.enabled=true"
 
-# Mail Settings
-- variable: mail.enabled
-  description: This installs Mail server for relaying SMTP requests to preferred backend.
+- variable: odoo.postgresql.enabled
+  description: Enable internal PostgreSQL for Odoo
   type: boolean
-  label: Install Mail SMTP Server?
-  group: Mail Settings
+  label: Use internal PostgreSQL
+  group: General Settings
+  show_if: "odoo.enabled=true"
 
-# ODK Central Settings
-- variable: odk-central.enabled
-  description: This installs ODK Central.
-  type: boolean
-  label: Install ODK Central?
-  group: ODK Central Settings
-
-- variable: odk-central.hostname
-  description: Hostname for ODK Central
+- variable: odoo.postgresql.auth.username
+  description: PostgreSQL username for Odoo
   type: string
-  label: ODK Central Hostname
-  group: ODK Central Settings
-  show_if: "odk-central.enabled=true"
+  label: Odoo DB Username
+  group: General Settings
+  show_if: "odoo.enabled=true&&odoo.postgresql.enabled=true"
 
-- variable: odk-central.backend.envVars.OIDC_ENABLED
-  description: Enable OIDC Login for ODK Central
-  type: boolean
-  label: Enable OIDC
-  group: ODK Central Settings
-  show_if: "odk-central.enabled=true"
-
-- variable: odk-central.backend.envVars.OIDC_CLIENT_ID
-  description: OIDC Client ID for ODK Central login
+- variable: odoo.postgresql.auth.database
+  description: PostgreSQL database name for Odoo
   type: string
-  label: OIDC Client ID
-  group: ODK Central Settings
-  show_if: "odk-central.enabled=true&&odk-central.backend.envVars.OIDC_ENABLED=true"
+  label: Odoo DB Name
+  group: General Settings
+  show_if: "odoo.enabled=true&&odoo.postgresql.enabled=true"
 
-- variable: odk-central.backend.envVars.OIDC_CLIENT_SECRET
-  description: OIDC Client Secret for ODK Central login
-  type: string
-  label: OIDC Client Secret
-  group: ODK Central Settings
-  show_if: "odk-central.enabled=true&&odk-central.backend.envVars.OIDC_ENABLED=true"
-
-# Minio Settings
 - variable: minio.enabled
   description: This installs Minio for document store.
   type: boolean
@@ -113,72 +88,25 @@ questions:
   group: Minio Settings
   show_if: "minio.enabled=true"
 
-# Logging Settings
-- variable: loggingFlow.enabled
-  description: This will allow Fluentd to capture logs into OpenSearch.
+- variable: minio.persistence.enabled
+  description: Enable persistent storage for Minio
   type: boolean
-  label: Enable logs capture?
-  group: Logging Settings
+  label: Enable Minio Persistence
+  group: Minio Settings
+  show_if: "minio.enabled=true"
 
-- variable: loggingOpensearch.enabled
-  description: This installs OpenSearch for logging
-  type: boolean
-  label: Install OpenSearch?
-  group: Logging Settings
-  # show_if: "loggingFlow.enabled=true"
-
-- variable: loggingFlow.opensearchInstallationName
-  description: |-
-    Edit this only if you want to reuse existing OpenSearch Installation.
-    Else enable OpenSearch Installation from "General Settings".
-  type: reference_service
-  label: Existing OpenSearch Installation Name
-  group: Logging Settings
-  show_if: "loggingOpensearch.enabled=false&&loggingFlow.enabled=true"
-
-- variable: loggingOpensearch.hostname
-  description: Hostname for OpenSearch Dashboards
+- variable: minio.persistence.size
+  description: Size of persistent storage for Minio (e.g. 16Gi)
   type: string
-  label: OpenSearch Dashboards Hostname
-  group: Logging Settings
-  show_if: "loggingOpensearch.enabled=true&&loggingFlow.enabled=true"
+  label: Minio Storage Size
+  group: Minio Settings
+  show_if: "minio.enabled=true&&minio.persistence.enabled=true"
 
-- variable: loggingOpensearch.oidcClientId
-  description: OIDC Client ID for OpenSearch login
-  type: string
-  label: OIDC Client ID
-  group: Logging Settings
-  show_if: "loggingOpensearch.enabled=true&&loggingFlow.enabled=true"
-
-- variable: loggingOpensearch.oidcClientSecret
-  description: OIDC Client Secret for OpenSearch login
-  type: string
-  label: OIDC Client Secret
-  group: Logging Settings
-  show_if: "loggingOpensearch.enabled=true&&loggingFlow.enabled=true"
-
-- variable: loggingOpensearch.loggingOutput.enabled
-  description: This will allow Fluentd to send logs into this OpenSearch.
-  type: boolean
-  label: Fluentd Logs Output?
-  group: Logging Settings
-  show_if: "loggingOpensearch.enabled=true&&loggingFlow.enabled=true"
-
-# Keymanager
 - variable: keymanager.enabled
-  description: This installs Keymanager for managing Keys for Encrpytion and Signatures
+  description: This installs Keymanager for managing keys for encryption and signatures
   type: boolean
   label: Install Keymanager?
   group: Keymanager Settings
-
-- variable: odoo.keymanagerInstallationName
-  description: |-
-    Edit this only if you want to reuse existing Keymanager Installation.
-    Else enable Keymanager Installation from "General Settings".
-  type: reference_service
-  label: Existing Keymanager Installation Name
-  group: Keymanager Settings
-  show_if: "keymanager.enabled=false"
 
 - variable: keymanager.hostname
   description: Hostname under which Keymanager should be accessible
@@ -239,126 +167,22 @@ questions:
   group: Keymanager Settings
   show_if: "keymanager.enabled=true"
 
-# Reporting
-- variable: reporting.enabled
-  description: This installs Reporting Framework for that stream DB data to OpenSearch for Dashboards
+- variable: serviceProviderIngress.enabled
+  description: Enable Service Provider Portal Ingress
   type: boolean
-  label: Install Reporting Framework?
-  group: Reporting Settings
+  label: Enable Service Provider Portal Ingress
+  group: General Settings
 
-- variable: reporting-init.enabled
-  description: This initializes Reporting Connectors for PBMS
+- variable: selfServiceIngress.enabled
+  description: Enable Self Service Portal Ingress
   type: boolean
-  label: Initialize Reporting Connectors (reporting-init)?
-  group: Reporting Settings
+  label: Enable Self Service Portal Ingress
+  group: General Settings
 
-- variable: reporting-init.reportingInstallationName
-  description: |-
-    If reporting is disabled with this installation, and if an installation of reporting
-    already exists, give the name of existing installation here.
-  type: string
-  label: Reporting Installation Name
-  group: Reporting Settings
-  show_if: "reporting.enabled=false&&reporting-init.enabled=true"
-
-# Reporting Kafka
-- variable: reporting.kafka.enabled
-  description: This installs Kafka along with the current reporting
+- variable: istio.enabled
+  description: Enable Istio integration for PBMS
   type: boolean
-  label: Install Kafka?
-  group: Reporting Settings
-  show_if: "reporting.enabled=true"
+  label: Enable Istio
+  group: General Settings
 
-- variable: reporting.kafkaUi.enabled
-  description: This installs Kafka UI along with Kafka
-  type: boolean
-  label: Install Kafka UI?
-  group: Reporting Settings
-  show_if: "reporting.enabled=true&&reporting.kafka.enabled=true"
-
-- variable: reporting.kafkaUi.hostname
-  description: Hostname with which Kafka UI should be accessible
-  type: string
-  label: Kafka UI Hostname
-  group: Reporting Settings
-  show_if: "reporting.enabled=true&&reporting.kafka.enabled=true&&reporting.kafkaUi.enabled=true"
-
-- variable: reporting.kafkaUi.oidcClientId
-  description: OIDC Client ID for Kafka UI login
-  type: string
-  label: Kafka OIDC Client ID
-  group: Reporting Settings
-  show_if: "reporting.enabled=true&&reporting.kafka.enabled=true&&reporting.kafkaUi.enabled=true"
-
-- variable: reporting.kafkaUi.oidcClientSecret
-  description: OIDC Client Secret for Kafka UI login
-  type: string
-  label: Kafka OIDC Client Secret
-  group: Reporting Settings
-  show_if: "reporting.enabled=true&&reporting.kafka.enabled=true&&reporting.kafkaUi.enabled=true"
-
-- variable: reporting.opensearch.enabled
-  description: This installs OpenSearch for reporting
-  type: boolean
-  label: Install OpenSearch?
-  group: Reporting Settings
-  show_if: "reporting.enabled=true"
-
-- variable: reporting-init.opensearchInstallationName
-  description: |-
-    Edit this only if you want to reuse existing OpenSearch Installation.
-    Else enable OpenSearch Installation.
-  type: reference_service
-  label: Existing OpenSearch Installation Name
-  group: Reporting Settings
-  show_if: "reporting.opensearch.enabled=false&&reporting.enabled=true"
-
-- variable: reporting.opensearch.hostname
-  description: Hostname for OpenSearch Dashboards
-  type: string
-  label: OpenSearch Dashboards Hostname
-  group: Reporting Settings
-  show_if: "reporting.opensearch.enabled=true&&reporting.enabled=true"
-
-- variable: reporting.opensearch.oidcClientId
-  description: OIDC Client ID for OpenSearch login
-  type: string
-  label: OpenSearch OIDC Client ID
-  group: Reporting Settings
-  show_if: "reporting.opensearch.enabled=true&&reporting.enabled=true"
-
-- variable: reporting.opensearch.oidcClientSecret
-  description: OIDC Client Secret for OpenSearch login
-  type: string
-  label: OpenSearch OIDC Client Secret
-  group: Reporting Settings
-  show_if: "reporting.opensearch.enabled=true&&reporting.enabled=true"
-
-# Reporting Init
-- variable: reporting-init.gitConfig.enabled
-  description: This enables downloading connectors and other Reporting-init configuration from Git.
-  type: boolean
-  label: Download reporting-init config from Git?
-  group: Reporting Settings
-  show_if: "reporting-init.enabled=true"
-
-- variable: reporting-init.gitConfig.repoUrl
-  description: Git Repository to download configs from. This must include username password if any.
-  type: string
-  label: Git Config Repository URL
-  group: Reporting Settings
-  show_if: "reporting-init.enabled=true&&reporting-init.gitConfig.enabled=true"
-
-- variable: reporting-init.gitConfig.branch
-  description: Git Repository Branch to download configs from.
-  type: string
-  label: Git Config Repository Branch
-  group: Reporting Settings
-  show_if: "reporting-init.enabled=true&&reporting-init.gitConfig.enabled=true"
-
-- variable: reporting-init.gitConfig.subDir
-  description: Subdirectory inside the Git Repository to take configs from.
-  type: string
-  label: Git Config Repository Subdirectory
-  group: Reporting Settings
-  show_if: "reporting-init.enabled=true&&reporting-init.gitConfig.enabled=true"
+# End of main PBMS/values.yaml-driven questions.
