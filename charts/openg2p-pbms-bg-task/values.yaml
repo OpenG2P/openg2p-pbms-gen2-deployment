@@ -1,0 +1,146 @@
+global:
+  g2pPbmsBgTaskHostname: g2p-pbms-bg-task.dev.openg2p.org
+
+  keycloakBaseUrl: https://keycloak.openg2p.org
+  keycloakIssuerUrl: '{{ tpl .Values.global.keycloakBaseUrl $ }}/realms/master'
+
+  g2pPbmsBgTaskClientId: 'openg2p-pbms-bg-task-{{ .Release.Namespace }}'
+  g2pPbmsBgTaskClientSecret: ''
+
+  keymanagerAuthEnabled: false
+  keymanagerG2pPbmsBgTaskAppId: OPENG2P_G2P_PBMS_BG_TASK
+  keymanagerBaseUrl: http://keymanager.openg2p.org
+  pbmsInstallationName: 'pbms'
+  registryInstallationName: 'social-registry'
+
+openg2p-pbms-bg-task-api:
+  enabled: true
+  nameOverride: api
+
+  keymanagerInstallationName: '{{ .Release.Name }}-keymanager'
+
+openg2p-pbms-bg-task-celery-beat-producers:
+  enabled: true
+  nameOverride: celery-beat-producer
+
+openg2p-pbms-bg-task-celery-workers:
+  enabled: true
+  nameOverride: celery-worker
+
+  keymanagerInstallationName: '{{ .Release.Name }}-keymanager'
+
+  envVars:
+    BG_TASK_CELERY_WORKERS_G2P_BRIDGE_BASE_URL: "https://g2pbridge-api"
+    BG_TASK_CELERY_WORKERS_CELERY_BROKER_URL: "redis://{{ tpl .Values.redisInstallationName $ }}:6379/0"
+    BG_TASK_CELERY_WORKERS_CELERY_BACKEND_URL: "redis://{{ tpl .Values.redisInstallationName $ }}:6379/0"
+
+    BG_TASK_CELERY_WORKERS_BATCH_SIZE: 500
+
+    # BG Task Database
+    BG_TASK_CELERY_WORKERS_DB_USERNAME: postgres
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME: '{{ tpl .Values.postgresqlInstallationName $ }}'
+    BG_TASK_CELERY_WORKERS_DB_PORT: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME: bgtaskdb
+
+    # Social Registry Database
+    BG_TASK_CELERY_WORKERS_DB_USERNAME_SR: postgres
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_SR: '{{ tpl .Values.global.registryInstallationName $ }}-postgresql'
+    BG_TASK_CELERY_WORKERS_DB_PORT_SR: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_SR: socialregistrydb
+
+    # PBMS Database
+    BG_TASK_CELERY_WORKERS_DB_USERNAME_PBMS: postgres
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.pbmsInstallationName $ }}-postgresql'
+    BG_TASK_CELERY_WORKERS_DB_PORT_PBMS: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_PBMS: pbmsdb
+
+    # Background Task Database (async)
+    BG_TASK_CELERY_WORKERS_DB_DRIVER_ASYNC: postgresql+asyncpg
+    BG_TASK_CELERY_WORKERS_DB_USERNAME_ASYNC: postgres
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_ASYNC: '{{ tpl .Values.postgresqlInstallationName $ }}'
+    BG_TASK_CELERY_WORKERS_DB_PORT_ASYNC: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_ASYNC: bgtaskdb
+
+    BG_TASK_CELERY_WORKERS_SIGN_KEY_KEYMANAGER_APP_ID: "PBMS"
+    BG_TASK_CELERY_WORKERS_SIGN_KEY_KEYMANAGER_REF_ID: ""
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_API_TIMEOUT: 10
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_API_BASE_URL: '{{ tpl .Values.global.keymanagerBaseUrl $ }}'
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_ENABLED: '{{ tpl .Values.global.keymanagerAuthEnabled $ }}'
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_URL: ""
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_CLIENT_ID: "openg2p-pbms-dev"
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_CLIENT_SECRET: ""
+
+postgresql:
+  enabled: true
+  auth:
+    username: bgtaskuser
+    database: bgtaskdb
+  additionalDbs:
+    enabled: true
+    userPasswordsExistingSecret: ""
+    userPasswords:
+      keymgruser: ""
+  primary:
+    # resourcesPreset: "small"
+    extendedConfiguration: |-
+      wal_level = logical
+      max_wal_senders = 20
+      max_replication_slots = 10
+
+redis:
+  enabled: true
+  architecture: standalone
+  master:
+    persistence:
+      enabled: false
+  auth:
+    enabled: false
+
+artifactory:
+  enabled: false
+  image:
+    repository: mosipid/artifactory-server
+    tag: 1.4.1-ES
+  resources: {}
+
+softhsm:
+  enabled: false
+  # Hardcoding this for now. else every upgrade will reset the pin
+  securityPIN: MTg5MTAwMTc=
+  resources: {}
+
+keymanager:
+  enabled: true
+  hostname: '{{ tpl .Values.global.g2pPbmsBgTaskHostname $ }}'
+  authEnabled: '{{ tpl .Values.global.keymanagerAuthEnabled $ }}'
+  istio:
+    enabled: true
+  keystoreType: PKCS12
+  springConfig:
+    names: application,kernel
+    profile: default
+    gitRepo:
+      enabled: true
+      repoUrl: https://github.com/openg2p/mosip-config
+      branch: master
+    rawConfig: ""
+  envVars:
+    auth_server_admin_allowed_audience: 'openg2p-pbms-bg-task,openg2p-pbms-bg-task-{{ .Release.Namespace }}'
+  envVarsFrom:
+    db_dbuser_password:
+      secretKeyRef:
+        name: '{{ .Release.Name }}-postgresql-addl-user-passwords'
+        key: keymgruser
+  postgresInit:
+    envVarsFrom:
+      DBUSER_PWD:
+        secretKeyRef:
+          name: '{{ .Release.Name }}-postgresql-addl-user-passwords'
+          key: keymgruser
+  keygen:
+    appIdsList:
+      - '{{ tpl .Values.global.keymanagerG2pPbmsBgTaskAppId $ }}'
+    baseKeysList:
+      - '{{ tpl .Values.global.keymanagerG2pPbmsBgTaskAppId $ }}:ENCRYPT'
+  persistence:
+    enabled: true

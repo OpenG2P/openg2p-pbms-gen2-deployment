@@ -1,0 +1,188 @@
+questions:
+- variable: hostname
+  description: Hostname to access PBMS
+  type: string
+  label: Hostname
+  group: General Settings
+
+- variable: global.keycloakBaseUrl
+  description: Keycloak Base URL used in all components (e.g. https://keycloak.openg2p.sandbox.net)
+  type: string
+  label: Keycloak Base URL
+  group: General Settings
+
+- variable: odoo.enabled
+  description: Enable Odoo (PBMS Core)
+  type: boolean
+  label: Enable PBMS Core (Odoo)
+  group: General Settings
+
+- variable: odoo.oidcClientId
+  description: OIDC Client ID for PBMS (Odoo)
+  type: string
+  label: OIDC Client ID
+  group: General Settings
+  show_if: "odoo.enabled=true"
+
+- variable: odoo.oidcClientSecret
+  description: OIDC Client Secret for PBMS (Odoo)
+  type: string
+  label: OIDC Client Secret
+  group: General Settings
+  show_if: "odoo.enabled=true"
+
+- variable: odoo.extraAddonsUrlsToPull
+  description: |-
+    Comma separated list of extra Odoo addons to pull.
+    Example: git://17.0-develop//https://github.com/openg2p/openg2p-registry
+  type: string
+  label: List of additional addons to be pulled
+  group: General Settings
+  show_if: "odoo.enabled=true"
+
+- variable: odoo.postgresql.enabled
+  description: Enable internal PostgreSQL for Odoo
+  type: boolean
+  label: Use internal PostgreSQL
+  group: General Settings
+  show_if: "odoo.enabled=true"
+
+- variable: odoo.postgresql.auth.username
+  description: PostgreSQL username for Odoo
+  type: string
+  label: Odoo DB Username
+  group: General Settings
+  show_if: "odoo.enabled=true&&odoo.postgresql.enabled=true"
+
+- variable: odoo.postgresql.auth.database
+  description: PostgreSQL database name for Odoo
+  type: string
+  label: Odoo DB Name
+  group: General Settings
+  show_if: "odoo.enabled=true&&odoo.postgresql.enabled=true"
+
+- variable: minio.enabled
+  description: This installs Minio for document store.
+  type: boolean
+  label: Install Minio?
+  group: Minio Settings
+
+- variable: minio.hostname
+  description: Hostname for Minio Console
+  type: string
+  label: Minio Console Hostname
+  group: Minio Settings
+  show_if: "minio.enabled=true"
+
+- variable: minio.oidcClientId
+  description: OIDC Client ID for Minio Console login
+  type: string
+  label: OIDC Client ID
+  group: Minio Settings
+  show_if: "minio.enabled=true"
+
+- variable: minio.oidcClientSecret
+  description: OIDC Client Secret for Minio Console login
+  type: string
+  label: OIDC Client Secret
+  group: Minio Settings
+  show_if: "minio.enabled=true"
+
+- variable: minio.persistence.enabled
+  description: Enable persistent storage for Minio
+  type: boolean
+  label: Enable Minio Persistence
+  group: Minio Settings
+  show_if: "minio.enabled=true"
+
+- variable: minio.persistence.size
+  description: Size of persistent storage for Minio (e.g. 16Gi)
+  type: string
+  label: Minio Storage Size
+  group: Minio Settings
+  show_if: "minio.enabled=true&&minio.persistence.enabled=true"
+
+- variable: keymanager.enabled
+  description: This installs Keymanager for managing keys for encryption and signatures
+  type: boolean
+  label: Install Keymanager?
+  group: Keymanager Settings
+
+- variable: keymanager.hostname
+  description: Hostname under which Keymanager should be accessible
+  type: string
+  label: Keymanager Hostname
+  group: Keymanager Settings
+  show_if: "keymanager.enabled=true"
+
+- variable: keymanager.springConfig.profile
+  type: string
+  label: Spring Config Profile
+  group: Keymanager Settings
+  show_if: "keymanager.enabled=true"
+
+- variable: keymanager.springConfig.names
+  type: string
+  label: Spring Config Names
+  group: Keymanager Settings
+  show_if: "keymanager.enabled=true"
+
+- variable: keymanager.springConfig.gitRepo.enabled
+  description: Enables download of configs from Git repo.
+  type: boolean
+  label: Spring Config Git Enabled
+  group: Keymanager Settings
+  show_if: "keymanager.enabled=true"
+  show_subquestion_if: true
+  subquestions:
+  - variable: keymanager.springConfig.gitRepo.repoUrl
+    description: |-
+      Repo Url for remote Git repo containing configs.
+      This url should include username password if required.
+    type: string
+    label: Spring Config Git Repo Url
+    group: Keymanager Settings
+
+  - variable: keymanager.springConfig.gitRepo.branch
+    description: Branch of remote Git repo containing configs.
+    type: string
+    label: Spring Config Git Repo Branch
+    group: Keymanager Settings
+
+- variable: keymanager.springConfig.rawConfig
+  description: |-
+    If git-based config is disabled, the complete application.properties can be
+    directly supplied here.
+  type: multiline
+  label: Spring Config application properties.
+  group: Keymanager Settings
+  show_if: "keymanager.enabled=true&&keymanager.springConfig.gitRepo.enabled=false"
+
+- variable: keymanager.envVars.auth_server_admin_allowed_audience
+  description: |-
+    List of Keycloak Client ID allowed to call this keymanager's APIs.
+    Do not edit this parameter unless required.
+  type: string
+  label: Allowed Keycloak Client IDs.
+  group: Keymanager Settings
+  show_if: "keymanager.enabled=true"
+
+- variable: serviceProviderIngress.enabled
+  description: Enable Service Provider Portal Ingress
+  type: boolean
+  label: Enable Service Provider Portal Ingress
+  group: General Settings
+
+- variable: selfServiceIngress.enabled
+  description: Enable Self Service Portal Ingress
+  type: boolean
+  label: Enable Self Service Portal Ingress
+  group: General Settings
+
+- variable: istio.enabled
+  description: Enable Istio integration for PBMS
+  type: boolean
+  label: Enable Istio
+  group: General Settings
+
+# End of main PBMS/values.yaml-driven questions.
