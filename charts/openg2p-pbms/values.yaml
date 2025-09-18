@@ -79,6 +79,9 @@ odoo:
   - name: EXTRA_ADDONS_URLS_TO_PULL
     value: '{{ tpl .Values.extraAddonsUrlsToPull $ }}'
 
+openg2p-pbms-bg-task:
+  enabled: true
+
 keymanager:
   enabled: false
   hostname: keymanager-pbms.openg2p.sandbox.net
