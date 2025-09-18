@@ -2,12 +2,15 @@ apiVersion: v2
 name: openg2p-pbms
 description: A Helm chart for OpenG2P PBMS
 type: application
-version: 2.0.0
+version: 3.0.0
 dependencies:
 - name: odoo
   version: 26.2.9
   repository: oci://registry-1.docker.io/bitnamicharts
   condition: odoo.enabled
+- name: openg2p-pbms-bg-task
+  version: 3.0.0
+  condition: openg2p-pbms-bg-task.enabled
 - name: minio
   version: 12.12.2
   repository: oci://registry-1.docker.io/bitnamicharts
