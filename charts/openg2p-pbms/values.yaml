@@ -4,6 +4,21 @@ global:
 
   sysAdminEmail: admin@openg2p.sandbox.net
 
+  keymanagerBaseUrl: https://keymanager.openg2p.org
+
+  g2pPbmsBgTaskHostname: g2p-pbms-bg-task.dev.openg2p.org
+
+  keycloakBaseUrl: https://keycloak.openg2p.org
+  keycloakIssuerUrl: '{{ tpl .Values.global.keycloakBaseUrl $ }}/realms/master'
+
+  g2pPbmsBgTaskClientId: 'openg2p-pbms-bg-task-{{ .Release.Namespace }}'
+  g2pPbmsBgTaskClientSecret: ''
+
+  keymanagerAuthEnabled: 'false'
+  keymanagerG2pPbmsBgTaskAppId: OPENG2P_G2P_PBMS_BG_TASK
+  pbmsInstallationName: 'pbms'
+  registryInstallationName: 'social-registry'
+
 # TODO: change
 hostname: pbms-gen2.dev.openg2p.org
 
@@ -38,10 +53,10 @@ odoo:
         wal_level = logical
         max_wal_senders = 20
         max_replication_slots = 10
-        initdb:
-      scripts:
-        create-multiple-dbs.sql: |
-          CREATE DATABASE bgtaskdb;
+      initdb:
+        scripts:
+          create-multiple-dbs.sql: |
+            CREATE DATABASE bgtaskdb;
     istio:
       enabled: false
       virtualservice:
