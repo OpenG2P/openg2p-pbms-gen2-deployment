@@ -38,6 +38,10 @@ odoo:
         wal_level = logical
         max_wal_senders = 20
         max_replication_slots = 10
+        initdb:
+      scripts:
+        create-multiple-dbs.sql: |
+          CREATE DATABASE bgtaskdb;
     istio:
       enabled: false
       virtualservice:
@@ -57,6 +61,7 @@ odoo:
           enabled: false
           mode: SIMPLE
           credentialName: ""
+
 
   livenessProbe:
     enabled: false
@@ -79,8 +84,62 @@ odoo:
   - name: EXTRA_ADDONS_URLS_TO_PULL
     value: '{{ tpl .Values.extraAddonsUrlsToPull $ }}'
 
-openg2p-pbms-bg-task:
+openg2p-pbms-bg-task-api:
   enabled: true
+  nameOverride: api
+
+  keymanagerInstallationName: '{{ .Release.Name }}-keymanager'
+
+openg2p-pbms-bg-task-celery-beat-producers:
+  enabled: true
+  nameOverride: celery-beat-producer
+
+openg2p-pbms-bg-task-celery-workers:
+  enabled: true
+  nameOverride: celery-worker
+
+  keymanagerInstallationName: '{{ .Release.Name }}-keymanager'
+
+  envVars:
+    BG_TASK_CELERY_WORKERS_G2P_BRIDGE_BASE_URL: "https://g2pbridge-api"
+    BG_TASK_CELERY_WORKERS_CELERY_BROKER_URL: "redis://{{ tpl .Values.redisInstallationName $ }}:6379/0"
+    BG_TASK_CELERY_WORKERS_CELERY_BACKEND_URL: "redis://{{ tpl .Values.redisInstallationName $ }}:6379/0"
+
+    BG_TASK_CELERY_WORKERS_BATCH_SIZE: 500
+
+    # BG Task Database
+    BG_TASK_CELERY_WORKERS_DB_USERNAME: postgres
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME: '{{ tpl .Values.postgresqlInstallationName $ }}'
+    BG_TASK_CELERY_WORKERS_DB_PORT: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME: bgtaskdb
+
+    # Social Registry Database
+    BG_TASK_CELERY_WORKERS_DB_USERNAME_SR: postgres
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_SR: '{{ tpl .Values.global.registryInstallationName $ }}-postgresql'
+    BG_TASK_CELERY_WORKERS_DB_PORT_SR: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_SR: socialregistrydb
+
+    # PBMS Database
+    BG_TASK_CELERY_WORKERS_DB_USERNAME_PBMS: postgres
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.pbmsInstallationName $ }}-postgresql'
+    BG_TASK_CELERY_WORKERS_DB_PORT_PBMS: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_PBMS: pbmsdb
+
+    # Background Task Database (async)
+    BG_TASK_CELERY_WORKERS_DB_DRIVER_ASYNC: postgresql+asyncpg
+    BG_TASK_CELERY_WORKERS_DB_USERNAME_ASYNC: postgres
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_ASYNC: '{{ tpl .Values.postgresqlInstallationName $ }}'
+    BG_TASK_CELERY_WORKERS_DB_PORT_ASYNC: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_ASYNC: bgtaskdb
+
+    BG_TASK_CELERY_WORKERS_SIGN_KEY_KEYMANAGER_APP_ID: "PBMS"
+    BG_TASK_CELERY_WORKERS_SIGN_KEY_KEYMANAGER_REF_ID: ""
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_API_TIMEOUT: 10
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_API_BASE_URL: '{{ tpl .Values.global.keymanagerBaseUrl $ }}'
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_ENABLED: '{{ tpl .Values.global.keymanagerAuthEnabled $ }}'
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_URL: ""
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_CLIENT_ID: "openg2p-pbms-dev"
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_CLIENT_SECRET: ""
 
 keymanager:
   enabled: false
