@@ -199,7 +199,7 @@ envVarsFrom:
       key: postgres-password
   BG_TASK_CELERY_WORKERS_DB_PASSWORD_PBMS:
     secretKeyRef:
-      name: '{{ tpl .Values.global.pbmsInstallationName $ }}-postgresql'
+      name: '{{ tpl .Values.postgresqlInstallationName $ }}-postgresql'
       key: postgres-password
 
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/

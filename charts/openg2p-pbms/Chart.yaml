@@ -8,9 +8,15 @@ dependencies:
   version: 26.2.9
   repository: oci://registry-1.docker.io/bitnamicharts
   condition: odoo.enabled
-- name: openg2p-pbms-bg-task
+- name: openg2p-pbms-bg-task-api
   version: 3.0.0
-  condition: openg2p-pbms-bg-task.enabled
+  condition: openg2p-pbms-bg-task-api.enabled
+- name: openg2p-pbms-bg-task-celery-beat-producers
+  version: 3.0.0
+  condition: openg2p-pbms-bg-task-celery-beat-producers.enabled
+- name: openg2p-pbms-bg-task-celery-workers
+  version: 3.0.0
+  condition: openg2p-pbms-bg-task-celery-workers.enabled
 - name: minio
   version: 12.12.2
   repository: oci://registry-1.docker.io/bitnamicharts
