@@ -167,6 +167,36 @@ questions:
   group: Keymanager Settings
   show_if: "keymanager.enabled=true"
 
+- variable: redis.enabled
+  description: Enable Redis for PBMS Background Task.
+  type: boolean
+  label: Enable Redis
+  group: Redis Settings
+
+- variable: redis.architecture
+  description: Redis deployment architecture (standalone/replication).
+  type: enum
+  options:
+    - standalone
+    - replication
+  label: Redis Architecture
+  group: Redis Settings
+  show_if: "redis.enabled=true"
+
+- variable: redis.master.persistence.enabled
+  description: Enable persistence for Redis master.
+  type: boolean
+  label: Enable Redis Persistence
+  group: Redis Settings
+  show_if: "redis.enabled=true"
+
+- variable: redis.auth.enabled
+  description: Enable password authentication for Redis.
+  type: boolean
+  label: Enable Redis Auth
+  group: Redis Settings
+  show_if: "redis.enabled=true"
+
 - variable: serviceProviderIngress.enabled
   description: Enable Service Provider Portal Ingress
   type: boolean

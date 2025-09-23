@@ -17,6 +17,10 @@ dependencies:
 - name: openg2p-pbms-bg-task-celery-workers
   version: 3.0.0
   condition: openg2p-pbms-bg-task-celery-workers.enabled
+- name: redis
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 19.x.x
+  condition: redis.enabled
 - name: minio
   version: 12.12.2
   repository: oci://registry-1.docker.io/bitnamicharts

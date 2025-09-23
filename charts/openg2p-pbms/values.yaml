@@ -176,6 +176,15 @@ keymanager:
     commonAnnotations:
       "helm.sh/hook-weight": "1"
 
+redis:
+  enabled: true
+  architecture: standalone
+  master:
+    persistence:
+      enabled: false
+  auth:
+    enabled: false
+
 minio:
   enabled: true
   hostname: minio-pbms.openg2p.sandbox.net
