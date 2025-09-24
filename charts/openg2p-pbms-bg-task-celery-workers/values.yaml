@@ -1,6 +1,6 @@
 global:
   pbmsInstallationName: 'pbms'
-  registryInstallationName: 'social-registry'
+  registryInstallationName: 'registry'
 
 ## Pod extra labels
 ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/

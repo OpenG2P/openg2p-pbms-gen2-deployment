@@ -17,7 +17,7 @@ global:
   keymanagerAuthEnabled: 'false'
   keymanagerG2pPbmsBgTaskAppId: OPENG2P_G2P_PBMS_BG_TASK
   pbmsInstallationName: 'pbms'
-  registryInstallationName: 'social-registry'
+  registryInstallationName: 'registry'
 
 # TODO: change
 hostname: pbms-gen2.dev.openg2p.org
