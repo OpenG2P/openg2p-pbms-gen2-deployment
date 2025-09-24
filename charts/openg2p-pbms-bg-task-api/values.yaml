@@ -2,7 +2,7 @@ global:
   g2pPbmsBgTaskHostname: g2p-pbms-bg-task.openg2p.sandbox.net
 
   pbmsInstallationName: 'pbms'
-  registryInstallationName: 'social-registry'
+  registryInstallationName: 'registry'
 
 ## Pod extra labels
 ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/

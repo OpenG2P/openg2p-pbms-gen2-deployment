@@ -17,7 +17,7 @@ global:
   keymanagerAuthEnabled: 'false'
   keymanagerG2pPbmsBgTaskAppId: OPENG2P_G2P_PBMS_BG_TASK
   pbmsInstallationName: 'pbms'
-  registryInstallationName: 'social-registry'
+  registryInstallationName: 'registry'
 
 # TODO: change
 hostname: pbms-gen2.dev.openg2p.org
@@ -178,6 +178,10 @@ keymanager:
 
 redis:
   enabled: true
+  image:
+    registry: docker.io
+    repository: openg2p/redis
+    tag: 7.2.5-debian-12-r4
   architecture: standalone
   master:
     persistence:
@@ -187,6 +191,10 @@ redis:
 
 minio:
   enabled: true
+  image:
+    registry: docker.io
+    repository: openg2p/minio
+    tag: 2023.12.23-debian-11-r2
   hostname: minio-pbms.openg2p.sandbox.net
   persistence:
     enabled: true
