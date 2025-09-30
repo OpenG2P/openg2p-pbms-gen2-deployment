@@ -98,6 +98,12 @@ odoo:
     value: "False"
   - name: EXTRA_ADDONS_URLS_TO_PULL
     value: '{{ tpl .Values.extraAddonsUrlsToPull $ }}'
+  - name: S3_URL
+    value: http://openg2p-pbms-minio:9000
+  - name: S3_REGION
+    value: other
+  - name: S3_ACCESS_KEY_ID
+    value: admin
 
 openg2p-pbms-bg-task-api:
   enabled: true
