@@ -162,7 +162,7 @@ envVars:
 
   # PBMS Database
   BG_TASK_CELERY_BEAT_DB_USERNAME_PBMS: 'postgres'
-  BG_TASK_CELERY_BEAT_DB_HOSTNAME_PBMS: '{{ tpl .Values.postgresqlInstallationName $ }}-postgresql'
+  BG_TASK_CELERY_BEAT_DB_HOSTNAME_PBMS: '{{ tpl .Values.postgresqlInstallationName $ }}'
   BG_TASK_CELERY_BEAT_DB_PORT_PBMS: 5432
   BG_TASK_CELERY_BEAT_DB_DBNAME_PBMS: 'pbmsdb'
 

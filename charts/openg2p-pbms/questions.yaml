@@ -1,4 +1,5 @@
 questions:
+# General Settings
 - variable: hostname
   description: Hostname to access PBMS
   type: string
@@ -15,6 +16,24 @@ questions:
   description: Enable Odoo (PBMS Core)
   type: boolean
   label: Enable PBMS Core (Odoo)
+  group: General Settings
+
+- variable: openg2p-pbms-bg-task-api.enabled
+  description: Enable PBMS API (Background Task API)
+  type: boolean
+  label: Enable PBMS API
+  group: General Settings
+
+- variable: openg2p-pbms-bg-task-celery-beat-producers.enabled
+  description: Enable Celery Beat Producers for PBMS Background Tasks
+  type: boolean
+  label: Enable Celery Beat Producers
+  group: General Settings
+
+- variable: openg2p-pbms-bg-task-celery-workers.enabled
+  description: Enable Celery Workers for PBMS Background Tasks
+  type: boolean
+  label: Enable Celery Workers
   group: General Settings
 
 - variable: odoo.oidcClientId
@@ -61,6 +80,61 @@ questions:
   group: General Settings
   show_if: "odoo.enabled=true&&odoo.postgresql.enabled=true"
 
+- variable: serviceProviderIngress.enabled
+  description: Enable Service Provider Portal Ingress
+  type: boolean
+  label: Enable Service Provider Portal Ingress
+  group: General Settings
+
+- variable: selfServiceIngress.enabled
+  description: Enable Self Service Portal Ingress
+  type: boolean
+  label: Enable Self Service Portal Ingress
+  group: General Settings
+
+- variable: istio.enabled
+  description: Enable Istio integration for PBMS
+  type: boolean
+  label: Enable Istio
+  group: General Settings
+
+# Background Task Settings
+- variable: openg2p-pbms-bg-task-celery-beat-producers.envVars.BG_TASK_CELERY_BEAT_PRODUCER_FREQUENCY
+  description: Frequency (in seconds) for Celery Beat Producer to run.
+  type: int
+  label: Celery Beat Producer Frequency
+  group: Background Task Settings
+  show_if: "openg2p-pbms-bg-task-celery-beat-producers.enabled=true"
+
+- variable: openg2p-pbms-bg-task-celery-beat-producers.envVars.BG_TASK_CELERY_BEAT_BATCH_SIZE
+  description: Number of tasks to process in each batch by Celery Beat Producer.
+  type: int
+  label: Celery Beat Producer Batch Size
+  group: Background Task Settings
+  show_if: "openg2p-pbms-bg-task-celery-beat-producers.enabled=true"
+
+- variable: openg2p-pbms-bg-task-celery-beat-producers.envVars.BG_TASK_CELERY_BEAT_NO_OF_TASKS_TO_PROCESS
+  description: Number of tasks to process per run by Celery Beat Producer.
+  type: int
+  label: Celery Beat Producer Number of Tasks to Process
+  group: Background Task Settings
+  show_if: "openg2p-pbms-bg-task-celery-beat-producers.enabled=true"
+
+- variable: openg2p-pbms-bg-task-celery-workers.envVars.BG_TASK_CELERY_WORKERS_G2P_BRIDGE_BASE_URL
+  description: Base URL for G2P Bridge API used by Celery Workers.
+  type: string
+  label: Celery Workers G2P Bridge Base URL
+  group: Background Task Settings
+  show_if: "openg2p-pbms-bg-task-celery-workers.enabled=true"
+
+- variable: openg2p-pbms-bg-task-celery-workers.envVars.BG_TASK_CELERY_WORKERS_BATCH_SIZE
+  description: Number of tasks to process in each batch by Celery Workers.
+  type: int
+  label: Celery Workers Batch Size
+  group: Background Task Settings
+  show_if: "openg2p-pbms-bg-task-celery-workers.enabled=true"
+
+# Minio Settings
 - variable: minio.enabled
   description: This installs Minio for document store.
   type: boolean
@@ -102,6 +176,7 @@ questions:
   group: Minio Settings
   show_if: "minio.enabled=true&&minio.persistence.enabled=true"
 
+# Keymanager Settings
 - variable: keymanager.enabled
   description: This installs Keymanager for managing keys for encryption and signatures
   type: boolean
@@ -167,6 +242,7 @@ questions:
   group: Keymanager Settings
   show_if: "keymanager.enabled=true"
 
+# Redis Settings
 - variable: redis.enabled
   description: Enable Redis for PBMS Background Task.
   type: boolean
@@ -196,23 +272,5 @@ questions:
   label: Enable Redis Auth
   group: Redis Settings
   show_if: "redis.enabled=true"
-
-- variable: serviceProviderIngress.enabled
-  description: Enable Service Provider Portal Ingress
-  type: boolean
-  label: Enable Service Provider Portal Ingress
-  group: General Settings
-
-- variable: selfServiceIngress.enabled
-  description: Enable Self Service Portal Ingress
-  type: boolean
-  label: Enable Self Service Portal Ingress
-  group: General Settings
-
-- variable: istio.enabled
-  description: Enable Istio integration for PBMS
-  type: boolean
-  label: Enable Istio
-  group: General Settings
 
 # End of main PBMS/values.yaml-driven questions.
