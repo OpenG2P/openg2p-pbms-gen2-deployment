@@ -5,7 +5,7 @@ type: application
 version: 3.0.0
 dependencies:
 - name: common
-  repository: oci://registry-1.docker.io/bitnamicharts
+  repository: https://openg2p.github.io/openg2p-helm
   version: 2.x.x
 keywords:
   - openg2p-pbms-bg-task
@@ -15,4 +15,4 @@ maintainers:
     name: OpenG2P
 icon: https://openg2p.github.io/openg2p-helm/openg2p-logo.png
 annotations:
-  catalog.cattle.io/display-name: "OpenG2P G2P PBMS Background Task Celery Beat Producers"
+  catalog.cattle.io/display-name: "OpenG2P PBMS Background Task Celery Beat Producers"

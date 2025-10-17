@@ -2,9 +2,16 @@ global:
   keycloakBaseUrl: https://keycloak.openg2p.sandbox.net
   keycloakIssuerUrl: '{{ tpl .Values.global.keycloakBaseUrl $ }}/realms/master'
 
+  postgresqlHost: openg2p-commons-postgresql
+  opensearchInstallationName: openg2p-commons-opensearch
+  reportingInstallationName: openg2p-commons-reporting
+
+  mailInstallationName: openg2p-commons-mail
+
   sysAdminEmail: admin@openg2p.sandbox.net
 
-  keymanagerBaseUrl: https://keymanager.openg2p.org
+  pbmsOdooOidcClientID: 'openg2p-pbms-{{ .Release.Namespace }}'
+  pbmsOdooOidcClientSecret: ''
 
   g2pPbmsBgTaskHostname: g2p-pbms-bg-task.dev.openg2p.org
 
@@ -14,20 +21,23 @@ global:
   g2pPbmsBgTaskClientId: 'openg2p-pbms-bg-task-{{ .Release.Namespace }}'
   g2pPbmsBgTaskClientSecret: ''
 
+  keymanagerBaseUrl: https://keymanager.openg2p.org
   keymanagerAuthEnabled: 'false'
+  keymanagerInstallationName: openg2p-commons-keymanager
   keymanagerG2pPbmsBgTaskAppId: OPENG2P_G2P_PBMS_BG_TASK
+
   pbmsInstallationName: 'pbms'
   registryInstallationName: 'registry'
 
 # TODO: change
-hostname: pbms-gen2.dev.openg2p.org
+hostname: admin-pbms.devops.openg2p.org
 
 odoo:
   enabled: true
 
   oidcIssuerUrl: '{{ tpl .Values.global.keycloakIssuerUrl $ }}'
-  oidcClientId: 'openg2p-pbms-{{ .Release.Namespace }}'
-  oidcClientSecret: ''
+  oidcClientId: '{{ tpl .Values.global.pbmsOdooOidcClientID $ }}'
+  oidcClientSecret: '{{ tpl .Values.global.pbmsOdooOidcClientSecret $ }}'
 
   extraAddonsUrlsToPull: ''
 
@@ -44,39 +54,33 @@ odoo:
   odooEmail: admin@openg2p.org
 
   postgresql:
-    enabled: true
-    auth:
-      username: pbmsuser
-      database: pbmsdb
-    primary:
-      extendedConfiguration: |-
-        wal_level = logical
-        max_wal_senders = 20
-        max_replication_slots = 10
-      initdb:
-        scripts:
-          create-multiple-dbs.sql: |
-            CREATE DATABASE bgtaskdb;
-    istio:
-      enabled: false
-      virtualservice:
-        enabled: true
-        host: "*"
-        gateway: ""
-        matchPort: 5432
-        destination: '{{ include "postgresql.v1.primary.fullname" .Subcharts.odoo.Subcharts.postgresql }}'
-        destinationPort: "5432"
-      gateway:
-        enabled: true
-        port: 5432
-        host: "*"
-        ingressController:
-          istio: ingressgateway
-        tls:
-          enabled: false
-          mode: SIMPLE
-          credentialName: ""
+    enabled: false
+      #database: pbmsdb
+      # CREATE DATABASE bgtaskdb;
 
+  externalDatabase:
+    create: true
+    # NOTE: For few parameter below the Odoo templates have been overridden to accomodate
+    # templating. See templates/_helpers.tpl
+    host: '{{ .Values.global.postgresqlHost }}'
+    port: 5432
+    database: '{{ .Release.Name }}_db'
+    user: '{{ .Release.Name }}_db_user'
+    # Provided via secrets below
+    password: ""
+    postgresqlPostgresUser: "postgres"
+    # Passed via secrets
+    postgresqlPostgresPassword: ""
+    # The secrets below should be created before this installation is done.
+    # Secret for the DB (not Postgresql server)
+    existingSecret: '{{ .Release.Name }}'
+    # This is secret for PostgreSQL server. Both have different secrets (unlike original Odoo
+    # Chart where the same secret contained keys for both Postgres and the database user
+    existingPostgresSecret: openg2p-commons-postgresql
+    # Same as user name as convention
+    existingSecretPasswordKey: '{{ .Release.Name }}_db_user'
+    # Hardcoded as this is not likely to change frequently
+    existingSecretPostgresPasswordKey: postgres-password
 
   livenessProbe:
     enabled: false
@@ -91,13 +95,6 @@ odoo:
     value: "False"
   - name: SERVER_WIDE_MODULES
     value: web,queue_job
-  # not using bitnami smtpHost and smtpPort variables, because they need user and pass as well.
-  # - name: ODOO_BOOTSTRAP_MODULES
-  #   value: >-
-  #     base,
-  #     g2p_app_filter,
-  #     g2p_auth_oidc,
-  #     g2p_auth_oidc_keycloak,
   - name: LOG_HANDLER
     value: '[":INFO"]'
   - name: LOG_DB
