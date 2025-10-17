@@ -13,6 +13,8 @@ global:
   pbmsOdooOidcClientID: 'openg2p-pbms-{{ .Release.Namespace }}'
   pbmsOdooOidcClientSecret: ''
 
+  minioInstallationName: openg2p-commons-minio
+
   g2pPbmsBgTaskHostname: g2p-pbms-bg-task.dev.openg2p.org
 
   keycloakBaseUrl: https://keycloak.openg2p.org
@@ -31,6 +33,27 @@ global:
 
 # TODO: change
 hostname: admin-pbms.devops.openg2p.org
+
+postgres-init:
+  enabled: true
+  postgresql:
+    host: '{{ .Values.global.postgresqlHost }}'
+    port: 5432
+    # Hard coding. Same as one defined under Odoo
+    existingSecret: openg2p-commons-postgresql
+    existingSecretPostgresPasswordKey: postgres-password
+  databases:
+    # Same as db in Odoo - make sure any changes to the name are synced with Odoo definitions
+    - name: '{{ .Release.Name }}_db'
+      user: '{{ .Release.Name}}_db_user'
+      # Same as odoo.externalDatabase.existingSecret - make sure these two are same if any changes are made.
+      secret: '{{ .Release.Name }}'
+      # As convention same as user
+      secretUserPasswordKey: '{{ .Release.Name}}_db_user'
+    - name: '{{ .Release.Name }}_bgtask_db'
+      user: '{{ .Release.Name}}_bgtask_db_user'
+      secret: '{{ .Release.Name }}_bgtask'
+      secretUserPasswordKey: '{{ .Release.Name}}_bgtask_db_user'
 
 odoo:
   enabled: true
@@ -102,7 +125,7 @@ odoo:
   - name: EXTRA_ADDONS_URLS_TO_PULL
     value: '{{ tpl .Values.extraAddonsUrlsToPull $ }}'
   - name: S3_URL
-    value: http://{{ tpl .Values.minio.hostname $ }}:9000
+    value: http://{{ tpl .Values.global.minioInstallationName $ }}:9000
   - name: S3_REGION
     value: other
   - name: S3_ACCESS_KEY_ID
@@ -234,59 +257,6 @@ redis:
       enabled: false
   auth:
     enabled: false
-
-minio:
-  enabled: true
-  image:
-    registry: docker.io
-    repository: openg2p/minio
-    tag: 2023.12.23-debian-11-r2
-  hostname: minio-pbms.openg2p.sandbox.net
-  persistence:
-    enabled: true
-    size: 16Gi
-
-  oidcWellKnownConfigUrl: '{{ tpl .Values.global.keycloakIssuerUrl $ }}/.well-known/openid-configuration'
-  oidcClientId: 'openg2p-pbms-minio-{{ .Release.Namespace }}'
-  oidcClientSecret: ''
-
-  extraEnvVars:
-  - name: MINIO_IDENTITY_OPENID_CONFIG_URL
-    value: '{{ tpl .Values.oidcWellKnownConfigUrl $ }}'
-  - name: MINIO_IDENTITY_OPENID_CLIENT_ID
-    value: '{{ tpl .Values.oidcClientId $ }}'
-  - name: MINIO_IDENTITY_OPENID_CLIENT_SECRET
-    value: '{{ tpl .Values.oidcClientSecret $ }}'
-  - name: MINIO_IDENTITY_OPENID_DISPLAY_NAME
-    value: Keycloak
-  - name: MINIO_IDENTITY_OPENID_CLAIM_NAME
-    value: client_roles
-  - name: MINIO_IDENTITY_OPENID_SCOPES
-    value: openid,profile,email
-  - name: MINIO_IDENTITY_OPENID_REDIRECT_URI_DYNAMIC
-    value: "on"
-  - name: MINIO_IDENTITY_OPENID_CLAIM_USERINFO
-    value: "on"
-
-  istio:
-    enabled: true
-    virtualservice:
-      enabled: true
-      host: ""
-      gateway: "internal"
-      destination: '{{ include "common.names.fullname" .Subcharts.minio }}'
-      destinationPort: "9001"
-    gateway:
-      enabled: false
-      host: ""
-      ingressController:
-        istio: ingressgateway
-      httpTlsRedirect: true
-      httpEnabled: true
-      httpsEnabled: false
-      tls:
-        mode: SIMPLE
-        credentialName: ""
 
 serviceProviderIngress:
   enabled: false
