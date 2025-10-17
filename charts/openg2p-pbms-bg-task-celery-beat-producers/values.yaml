@@ -1,6 +1,6 @@
 global:
   pbmsInstallationName: 'pbms'
-  registryInstallationName: 'social-registry'
+  registryInstallationName: 'registry'
 
 ## Pod extra labels
 ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
@@ -162,7 +162,7 @@ envVars:
 
   # PBMS Database
   BG_TASK_CELERY_BEAT_DB_USERNAME_PBMS: 'postgres'
-  BG_TASK_CELERY_BEAT_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.pbmsInstallationName $ }}-postgresql'
+  BG_TASK_CELERY_BEAT_DB_HOSTNAME_PBMS: '{{ tpl .Values.postgresqlInstallationName $ }}'
   BG_TASK_CELERY_BEAT_DB_PORT_PBMS: 5432
   BG_TASK_CELERY_BEAT_DB_DBNAME_PBMS: 'pbmsdb'
 
@@ -180,7 +180,7 @@ envVarsFrom:
       key: postgres-password
   BG_TASK_CELERY_BEAT_DB_PASSWORD_PBMS :
     secretKeyRef:
-      name: '{{ tpl .Values.global.pbmsInstallationName $ }}-postgresql'
+      name: '{{ tpl .Values.postgresqlInstallationName $ }}'
       key: postgres-password
 
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
