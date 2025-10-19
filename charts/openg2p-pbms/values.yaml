@@ -3,8 +3,22 @@ global:
   keycloakIssuerUrl: '{{ tpl .Values.global.keycloakBaseUrl $ }}/realms/master'
 
   postgresqlHost: openg2p-commons-postgresql
-  opensearchInstallationName: openg2p-commons-opensearch
-  reportingInstallationName: openg2p-commons-reporting
+
+  pbmsDB: '{{ .Release.Name }}_db'
+  pbmsDBUser: '{{ .Release.Name}}_db_user'
+  pbmsDBSecret: '{{ .Release.Name }}'
+  pbmsDBUserPasswordKey: '{{ .Release.Name}}_db_user'
+
+  pbmsBgTaskDB: '{{ .Release.Name }}_bgtask_db'
+  pbmsBgTaskDBUser: '{{ .Release.Name}}_bgtask_db_user'
+  pbmsBgTaskDBSecret: '{{ .Release.Name }}_bgtask'
+  pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name}}_bgtask_db_user'
+
+  # Defaults that should be overridden by questions.yaml
+  registryDB: 'registry_db'
+  registryDBUser: 'registry_db_user'
+  registryDBSecret: 'registry'
+  registryDBUserPasswordKey: 'registry_db_user'
 
   mailInstallationName: openg2p-commons-mail
 
@@ -43,13 +57,13 @@ postgres-init:
     existingSecret: openg2p-commons-postgresql
     existingSecretPostgresPasswordKey: postgres-password
   databases:
-    # Same as db in Odoo - make sure any changes to the name are synced with Odoo definitions
-    - name: '{{ .Release.Name }}_db'
-      user: '{{ .Release.Name}}_db_user'
+    # Same as db in Odoo
+    - name: '{{ tpl .Values.global.pbmsDB $ }}'
+      user: '{{ tpl. .Values.global.pbmsDBUser $ }}'
       # Same as odoo.externalDatabase.existingSecret - make sure these two are same if any changes are made.
-      secret: '{{ .Release.Name }}'
+      secret: '{{ tpl .Values.global.pbmsDBSecret $ }}'
       # As convention same as user
-      secretUserPasswordKey: '{{ .Release.Name}}_db_user'
+      secretUserPasswordKey: '{{ tpl .Values.global.pbmsDBUserPasswordKey $ }}'
     - name: '{{ .Release.Name }}_bgtask_db'
       user: '{{ .Release.Name}}_bgtask_db_user'
       secret: '{{ .Release.Name }}_bgtask'
@@ -78,8 +92,6 @@ odoo:
 
   postgresql:
     enabled: false
-      #database: pbmsdb
-      # CREATE DATABASE bgtaskdb;
 
   externalDatabase:
     create: true
@@ -87,8 +99,8 @@ odoo:
     # templating. See templates/_helpers.tpl
     host: '{{ .Values.global.postgresqlHost }}'
     port: 5432
-    database: '{{ .Release.Name }}_db'
-    user: '{{ .Release.Name }}_db_user'
+    database: '{{ .Values.global.pbmsDB }}'
+    user: '{{ .Values.global.pbmsDBUser }}'
     # Provided via secrets below
     password: ""
     postgresqlPostgresUser: "postgres"
@@ -96,12 +108,12 @@ odoo:
     postgresqlPostgresPassword: ""
     # The secrets below should be created before this installation is done.
     # Secret for the DB (not Postgresql server)
-    existingSecret: '{{ .Release.Name }}'
+    existingSecret: '{{ .Values.global.pbmsDBSecret }}'
     # This is secret for PostgreSQL server. Both have different secrets (unlike original Odoo
     # Chart where the same secret contained keys for both Postgres and the database user
     existingPostgresSecret: openg2p-commons-postgresql
     # Same as user name as convention
-    existingSecretPasswordKey: '{{ .Release.Name }}_db_user'
+    existingSecretPasswordKey: '{{ .Values.global.pbmsDBUserPasswordKey }}'
     # Hardcoded as this is not likely to change frequently
     existingSecretPostgresPasswordKey: postgres-password
 
@@ -135,17 +147,18 @@ openg2p-pbms-bg-task-api:
   enabled: true
   nameOverride: api
 
-  keymanagerInstallationName: '{{ .Release.Name }}-keymanager'
-  envVars:
-    BG_TASK_API_DB_USERNAME_SR: 'postgres'
-    BG_TASK_API_DB_HOSTNAME_SR: '{{ tpl .Values.global.registryInstallationName $ }}-postgresql'
-    BG_TASK_API_DB_PORT_SR: 5432
-    BG_TASK_API_DB_DBNAME_SR: 'socialregistrydb'
+  keymanagerInstallationName: '{{ tpl .Values.global.keymanagerInstallationName $ }}'
 
-    BG_TASK_API_DB_USERNAME: 'postgres'
-    BG_TASK_API_DB_HOSTNAME: '{{ tpl .Values.postgresqlInstallationName $ }}'
+  envVars:
+    BG_TASK_API_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
+    BG_TASK_API_DB_PORT_SR: 5432
+    BG_TASK_API_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
+    BG_TASK_API_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser }}' 
+
+    BG_TASK_API_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_API_DB_PORT: 5432
-    BG_TASK_API_DB_DBNAME: 'bgtaskdb'
+    BG_TASK_API_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
+    BG_TASK_API_DB_USERNAME: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
 
 openg2p-pbms-bg-task-celery-beat-producers:
   enabled: true
@@ -182,7 +195,7 @@ openg2p-pbms-bg-task-celery-workers:
   enabled: true
   nameOverride: celery-worker
 
-  keymanagerInstallationName: '{{ .Release.Name }}-keymanager'
+  keymanagerInstallationName: '{{ tpl .Values.global.keymanagerInstallationName $ }}'
 
   envVars:
     BG_TASK_CELERY_WORKERS_G2P_BRIDGE_BASE_URL: "https://g2pbridge-api"

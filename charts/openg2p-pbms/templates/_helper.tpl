@@ -1,4 +1,30 @@
 {{/*
+Overriding Odoo's templates. All the variable names here match ones in Odoo's
+values.yaml, not this chart's values.yaml. The templates here will be available
+to Odoo's chart.
+*/}}
+
+{{- define "odoo.databaseHost" -}}
+{{- tpl .Values.externalDatabase.host . -}}
+{{- end -}}
+
+{{- define "odoo.databaseName" -}}
+{{- tpl .Values.externalDatabase.database . -}}
+{{- end -}}
+
+{{- define "odoo.databaseUser" -}}
+{{- tpl .Values.externalDatabase.user . -}}
+{{- end -}}
+
+{{- define "odoo.databaseSecretPasswordKey" -}}
+{{- tpl .Values.externalDatabase.existingSecretPasswordKey . -}}
+{{- end -}}
+
+{{- define "odoo.databaseSecretName" -}}
+{{- tpl .Values.externalDatabase.existingSecret . -}}
+{{- end -}}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "pbms.name" -}}
