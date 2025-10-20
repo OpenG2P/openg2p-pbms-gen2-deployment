@@ -44,6 +44,9 @@ global:
 
   pbmsInstallationName: 'pbms'
   registryInstallationName: 'registry'
+  
+  # Default name of Redis that is installed with this chart
+  redisInstallationName: '{{ .Release.Name }}-redis-master'
 
 # TODO: change
 hostname: admin-pbms.devops.openg2p.org
@@ -170,26 +173,25 @@ openg2p-pbms-bg-task-celery-beat-producers:
     BG_TASK_CELERY_BEAT_NO_OF_TASKS_TO_PROCESS: 2
 
     # Background Task Database
-    BG_TASK_CELERY_BEAT_DB_USERNAME: 'postgres'
-    BG_TASK_CELERY_BEAT_DB_HOSTNAME: '{{ tpl .Values.postgresqlInstallationName $ }}'
+    BG_TASK_CELERY_BEAT_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_CELERY_BEAT_DB_PORT: 5432
-    BG_TASK_CELERY_BEAT_DB_DBNAME: 'bgtaskdb'
+    BG_TASK_CELERY_BEAT_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
+    BG_TASK_CELERY_BEAT_DB_USERNAME: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
 
     # Social Registry Database
-    BG_TASK_CELERY_BEAT_DB_USERNAME_SR: 'postgres'
-    BG_TASK_CELERY_BEAT_DB_HOSTNAME_SR: '{{ tpl .Values.global.registryInstallationName $ }}-postgresql'
+    BG_TASK_CELERY_BEAT_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_CELERY_BEAT_DB_PORT_SR: 5432
-    BG_TASK_CELERY_BEAT_DB_DBNAME_SR: 'socialregistrydb'
+    BG_TASK_CELERY_BEAT_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
+    BG_TASK_CELERY_BEAT_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser }}'
 
     # PBMS Database
-    BG_TASK_CELERY_BEAT_DB_USERNAME_PBMS: 'postgres'
-    BG_TASK_CELERY_BEAT_DB_HOSTNAME_PBMS: '{{ tpl .Values.postgresqlInstallationName $ }}'
+    BG_TASK_CELERY_BEAT_DB_USERNAME_PBMS:  '{{ tpl .Values.global.pbmsDBUser }}'
+    BG_TASK_CELERY_BEAT_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_CELERY_BEAT_DB_PORT_PBMS: 5432
-    BG_TASK_CELERY_BEAT_DB_DBNAME_PBMS: 'pbmsdb'
+    BG_TASK_CELERY_BEAT_DB_DBNAME_PBMS:  '{{ tpl .Values.global.pbmsDB }}'
 
-    BG_TASK_CELERY_BEAT_CELERY_BROKER_URL: redis://{{ tpl .Values.redisInstallationName $ }}:6379/0
-    BG_TASK_CELERY_BEAT_CELERY_BACKEND_URL: redis://{{ tpl .Values.redisInstallationName $ }}:6379/0
-
+    BG_TASK_CELERY_BEAT_CELERY_BROKER_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0
+    BG_TASK_CELERY_BEAT_CELERY_BACKEND_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0
 
 openg2p-pbms-bg-task-celery-workers:
   enabled: true
@@ -199,35 +201,35 @@ openg2p-pbms-bg-task-celery-workers:
 
   envVars:
     BG_TASK_CELERY_WORKERS_G2P_BRIDGE_BASE_URL: "https://g2pbridge-api"
-    BG_TASK_CELERY_WORKERS_CELERY_BROKER_URL: "redis://{{ tpl .Values.redisInstallationName $ }}:6379/0"
-    BG_TASK_CELERY_WORKERS_CELERY_BACKEND_URL: "redis://{{ tpl .Values.redisInstallationName $ }}:6379/0"
+    BG_TASK_CELERY_WORKERS_CELERY_BROKER_URL: "redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0"
+    BG_TASK_CELERY_WORKERS_CELERY_BACKEND_URL: "redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0"
 
     BG_TASK_CELERY_WORKERS_BATCH_SIZE: 500
 
     # BG Task Database
-    BG_TASK_CELERY_WORKERS_DB_USERNAME: postgres
-    BG_TASK_CELERY_WORKERS_DB_HOSTNAME: '{{ tpl .Values.postgresqlInstallationName $ }}'
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_CELERY_WORKERS_DB_PORT: 5432
-    BG_TASK_CELERY_WORKERS_DB_DBNAME: bgtaskdb
+    BG_TASK_CELERY_WORKERS_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
+    BG_TASK_CELERY_WORKERS_DB_USERNAME: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}' 
 
     # Social Registry Database
-    BG_TASK_CELERY_WORKERS_DB_USERNAME_SR: postgres
-    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_SR: '{{ tpl .Values.global.registryInstallationName $ }}-postgresql'
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_CELERY_WORKERS_DB_PORT_SR: 5432
-    BG_TASK_CELERY_WORKERS_DB_DBNAME_SR: socialregistrydb
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
+    BG_TASK_CELERY_WORKERS_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser $ }}'
 
     # PBMS Database
-    BG_TASK_CELERY_WORKERS_DB_USERNAME_PBMS: postgres
-    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.pbmsInstallationName $ }}-postgresql'
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_CELERY_WORKERS_DB_PORT_PBMS: 5432
-    BG_TASK_CELERY_WORKERS_DB_DBNAME_PBMS: pbmsdb
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_PBMS: '{{ tpl .Values.global.pbmsDB $ }}'
+    BG_TASK_CELERY_WORKERS_DB_USERNAME_PBMS: '{{ tpl .Values.global.pbmsDBUser $ }}'
 
     # Background Task Database (async)
     BG_TASK_CELERY_WORKERS_DB_DRIVER_ASYNC: postgresql+asyncpg
     BG_TASK_CELERY_WORKERS_DB_USERNAME_ASYNC: postgres
-    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_ASYNC: '{{ tpl .Values.postgresqlInstallationName $ }}'
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_ASYNC: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_CELERY_WORKERS_DB_PORT_ASYNC: 5432
-    BG_TASK_CELERY_WORKERS_DB_DBNAME_ASYNC: bgtaskdb
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_ASYNC: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
 
     BG_TASK_CELERY_WORKERS_SIGN_KEY_KEYMANAGER_APP_ID: "PBMS"
     BG_TASK_CELERY_WORKERS_SIGN_KEY_KEYMANAGER_REF_ID: ""
