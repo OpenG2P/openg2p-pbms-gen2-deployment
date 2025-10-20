@@ -1,5 +1,5 @@
 global:
-  keycloakBaseUrl: https://keycloak.openg2p.sandbox.net
+  keycloakBaseUrl: https://keycloak.openg2p.org
   keycloakIssuerUrl: '{{ tpl .Values.global.keycloakBaseUrl $ }}/realms/master'
 
   postgresqlHost: openg2p-commons-postgresql
@@ -29,10 +29,8 @@ global:
 
   minioInstallationName: openg2p-commons-minio
 
-  g2pPbmsBgTaskHostname: g2p-pbms-bg-task.dev.openg2p.org
-
-  keycloakBaseUrl: https://keycloak.openg2p.org
-  keycloakIssuerUrl: '{{ tpl .Values.global.keycloakBaseUrl $ }}/realms/master'
+  # TODO: Add this to questions.yaml
+  g2pPbmsBgTaskHostname: '{{ tpl .Release.Name $ }}-bg-task.devops.openg2p.org'
 
   g2pPbmsBgTaskClientId: 'openg2p-pbms-bg-task-{{ .Release.Namespace }}'
   g2pPbmsBgTaskClientSecret: ''
@@ -42,9 +40,6 @@ global:
   keymanagerInstallationName: openg2p-commons-keymanager
   keymanagerG2pPbmsBgTaskAppId: OPENG2P_G2P_PBMS_BG_TASK
 
-  pbmsInstallationName: 'pbms'
-  registryInstallationName: 'registry'
-  
   # Default name of Redis that is installed with this chart
   redisInstallationName: '{{ .Release.Name }}-redis-master'
 

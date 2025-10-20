@@ -1,6 +1,4 @@
 global:
-  pbmsInstallationName: 'pbms'
-  registryInstallationName: 'registry'
 
 ## Pod extra labels
 ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
@@ -164,7 +162,7 @@ envVars:
 
   # PBMS Database
   BG_TASK_CELERY_WORKERS_DB_USERNAME_PBMS: postgres
-  BG_TASK_CELERY_WORKERS_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.pbmsInstallationName $ }}-postgresql'
+  BG_TASK_CELERY_WORKERS_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.pmsInstallationName $ }}-postgresql'
   BG_TASK_CELERY_WORKERS_DB_PORT_PBMS: 5432
   BG_TASK_CELERY_WORKERS_DB_DBNAME_PBMS: pbmsdb
 

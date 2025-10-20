@@ -1,8 +1,18 @@
 global:
+  # This will be overridden by the openg2p-pbms (parent) chart.
   g2pPbmsBgTaskHostname: g2p-pbms-bg-task.openg2p.sandbox.net
 
-  pbmsInstallationName: 'pbms'
-  registryInstallationName: 'registry'
+  # All the below overriden by same globals in openg2p-pbms/values.yaml
+  registryPostgresqlHost: openg2p-commons-postgresql
+  registryDB: 'registry_db'
+  registryDBUser: 'registry_db_user'
+  registryDBSecret: 'registry'
+  registryDBUserPasswordKey: 'registry_db_user'
+  postgresqlHost: openg2p-commons-postgresql
+  pbmsBgTaskDB: '{{ .Release.Name }}_bgtask_db'
+  pbmsBgTaskDBUser: '{{ .Release.Name}}_bgtask_db_user'
+  pbmsBgTaskDBSecret: '{{ .Release.Name }}_bgtask'
+  pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name}}_bgtask_db_user'
 
 ## Pod extra labels
 ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
@@ -145,25 +155,26 @@ containerSecurityContext:
   runAsNonRoot: true
 
 envVars:
-  BG_TASK_API_DB_USERNAME_SR: 'postgres'
-  BG_TASK_API_DB_HOSTNAME_SR: '{{ tpl .Values.global.registryInstallationName $ }}-postgresql'
+  BG_TASK_API_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser $ }}'
+  BG_TASK_API_DB_HOSTNAME_SR: '{{ tpl .Values.global.registryPostgresqlHost $ }}'
   BG_TASK_API_DB_PORT_SR: 5432
-  BG_TASK_API_DB_DBNAME_SR: 'socialregistrydb'
+  BG_TASK_API_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
 
-  BG_TASK_API_DB_USERNAME: 'postgres'
-  BG_TASK_API_DB_HOSTNAME: '{{ tpl .Values.postgresqlInstallationName $ }}'
+  # TBD: set the correct user name
+  BG_TASK_API_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
   BG_TASK_API_DB_PORT: 5432
-  BG_TASK_API_DB_DBNAME: 'bgtaskdb'
+  BG_TASK_API_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
+  BG_TASK_API_DB_USERNAME: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
 
 envVarsFrom:
   BG_TASK_API_DB_PASSWORD:
     secretKeyRef:
-      name: '{{ tpl .Values.postgresqlInstallationName $ }}'
-      key: postgres-password
+      name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}' 
+      key:  '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
   BG_TASK_API_DB_PASSWORD_SR:
     secretKeyRef:
-      name: '{{ tpl .Values.global.registryInstallationName $ }}-postgresql'
-      key: postgres-password
+      name: '{{ tpl .Values.global.registryDBSecret $ }}'
+      key: '{{ tpl .Values.global.registryDBUserPasswordKey $ }}'
 
 ## ref: http://kubernetes.io/docs/user-guide/compute-rpostgresqlesources/
 ##
@@ -292,4 +303,3 @@ postgresCheckerInit:
   - '-c'
   - 'until pg_isready -U ${BG_TASK_API_DB_USERNAME} -h ${BG_TASK_API_DB_HOSTNAME} -p ${BG_TASK_API_DB_PORT:-5432} -d ${BG_TASK_API_DB_DBNAME:-pbms-bg-task-db}; do sleep 3; done'
 
-postgresqlInstallationName: '{{ .Release.Name }}-postgresql'
