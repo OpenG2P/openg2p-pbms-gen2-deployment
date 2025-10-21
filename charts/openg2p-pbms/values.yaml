@@ -5,14 +5,15 @@ global:
   postgresqlHost: openg2p-commons-postgresql
 
   pbmsDB: '{{ .Release.Name }}_db'
-  pbmsDBUser: '{{ .Release.Name}}_db_user'
+  pbmsDBUser: '{{ .Release.Name }}_db_user'
   pbmsDBSecret: '{{ .Release.Name }}'
-  pbmsDBUserPasswordKey: '{{ .Release.Name}}_db_user'
+  pbmsDBUserPasswordKey: '{{ .Release.Name }}_db_user'
 
   pbmsBgTaskDB: '{{ .Release.Name }}_bgtask_db'
-  pbmsBgTaskDBUser: '{{ .Release.Name}}_bgtask_db_user'
-  pbmsBgTaskDBSecret: '{{ .Release.Name }}_bgtask'
-  pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name}}_bgtask_db_user'
+  pbmsBgTaskDBUser: '{{ .Release.Name }}_bgtask_db_user'
+  # Note underscore doesn't work here for Kubernetes secret, hence hyphen in the name
+  pbmsBgTaskDBSecret: '{{ .Release.Name }}-bgtask'
+  pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name }}_bgtask_db_user'
 
   # Defaults that should be overridden by questions.yaml
   registryDB: 'registry_db'
@@ -30,9 +31,9 @@ global:
   minioInstallationName: openg2p-commons-minio
 
   # TODO: Add this to questions.yaml
-  g2pPbmsBgTaskHostname: '{{ tpl .Release.Name $ }}-bg-task.devops.openg2p.org'
+  g2pPbmsBgTaskHostname: '{{ .Release.Name }}-bg-task.devops.openg2p.org'
 
-  g2pPbmsBgTaskClientId: 'openg2p-pbms-bg-task-{{ .Release.Namespace }}'
+  g2pPbmsBgTaskClientId: 'openg2p-pbms-bg-task-{{ tpl .Release.Namespace $ }}'
   g2pPbmsBgTaskClientSecret: ''
 
   keymanagerBaseUrl: https://keymanager.openg2p.org
@@ -65,7 +66,7 @@ postgres-init:
     # TODO: Read variables from globals instead of hardcoding below
     - name: '{{ .Release.Name }}_bgtask_db'
       user: '{{ .Release.Name}}_bgtask_db_user'
-      secret: '{{ .Release.Name }}_bgtask'
+      secret: '{{ .Release.Name }}-bgtask'
       secretUserPasswordKey: '{{ .Release.Name}}_bgtask_db_user'
 
 odoo:

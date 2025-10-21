@@ -10,14 +10,14 @@ global:
   registryDBUserPasswordKey: 'registry_db_user'
 
   pbmsDB: '{{ .Release.Name }}_db'
-  pbmsDBUser: '{{ .Release.Name}}_db_user'
+  pbmsDBUser: '{{ .Release.Name }}_db_user'
   pbmsDBSecret: '{{ .Release.Name }}'
-  pbmsDBUserPasswordKey: '{{ .Release.Name}}_db_user'
+  pbmsDBUserPasswordKey: '{{ .Release.Name }}_db_user'
 
   pbmsBgTaskDB: '{{ .Release.Name }}_bgtask_db'
-  pbmsBgTaskDBUser: '{{ .Release.Name}}_bgtask_db_user'
-  pbmsBgTaskDBSecret: '{{ .Release.Name }}_bgtask'
-  pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name}}_bgtask_db_user'
+  pbmsBgTaskDBUser: '{{ .Release.Name }}_bgtask_db_user'
+  pbmsBgTaskDBSecret: '{{ .Release.Name }}-bgtask'
+  pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name }}_bgtask_db_user'
 
   # Default name of Redis that is installed with the parent openg2p-pbms chart
   redisInstallationName: '{{ .Release.Name }}-redis-master'
@@ -220,8 +220,7 @@ envVarsFrom:
   BG_TASK_CELERY_WORKERS_DB_PASSWORD_PBMS:
     secretKeyRef:
       name: '{{ tpl .Values.global.pbmsDBSecret $ }}'
-      #key: '{{ tpl .Values.global.pbmsDBuserPasswordKey $ }}'
-      key: '{{ .Values.global.pbmsDBuserPasswordKey  }}'
+      key: '{{ tpl .Values.global.pbmsDBUserPasswordKey $ }}'
 
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##

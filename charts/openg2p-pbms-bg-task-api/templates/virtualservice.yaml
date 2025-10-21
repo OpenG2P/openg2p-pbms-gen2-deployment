@@ -10,14 +10,14 @@ metadata:
   {{- end }}
 spec:
   hosts:
-  - {{ default .Values.global.g2pPbmsBgTaskHostname .Values.istio.virtualservice.host | quote }}
+  - {{ default ( include "common.tplvalues.render" (dict "value" .Values.global.g2pPbmsBgTaskHostname "context" $ )) .Values.istio.virtualservice.host | quote }}
   gateways:
   - {{ default (include "common.names.fullname" .) .Values.istio.virtualservice.gateway }}
   http:
   - headers:
       request:
         set:
-          x-forwarded-host: {{ default .Values.global.g2pPbmsBgTaskHostname .Values.istio.virtualservice.host | quote }}
+          x-forwarded-host: {{ default (include "common.tplvalues.render" (dict "value" .Values.global.g2pPbmsBgTaskHostname "context" $)) .Values.global.g2pPbmsBgTaskHostname .Values.istio.virtualservice.host | quote }}
           x-forwarded-proto: https
     match:
     - uri:

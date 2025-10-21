@@ -1,3 +1,4 @@
 Chart.lock
 *.tgz
 charts/odoo
+charts/postgres-init

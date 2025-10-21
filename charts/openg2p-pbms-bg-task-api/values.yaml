@@ -10,9 +10,9 @@ global:
   registryDBUserPasswordKey: 'registry_db_user'
   postgresqlHost: openg2p-commons-postgresql
   pbmsBgTaskDB: '{{ .Release.Name }}_bgtask_db'
-  pbmsBgTaskDBUser: '{{ .Release.Name}}_bgtask_db_user'
+  pbmsBgTaskDBUser: '{{ .Release.Name }}_bgtask_db_user'
   pbmsBgTaskDBSecret: '{{ .Release.Name }}_bgtask'
-  pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name}}_bgtask_db_user'
+  pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name }}_bgtask_db_user'
 
 ## Pod extra labels
 ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
