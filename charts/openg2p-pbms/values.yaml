@@ -57,11 +57,12 @@ postgres-init:
   databases:
     # Same as db in Odoo
     - name: '{{ tpl .Values.global.pbmsDB $ }}'
-      user: '{{ tpl. .Values.global.pbmsDBUser $ }}'
+      user: '{{ tpl .Values.global.pbmsDBUser $ }}'
       # Same as odoo.externalDatabase.existingSecret - make sure these two are same if any changes are made.
       secret: '{{ tpl .Values.global.pbmsDBSecret $ }}'
       # As convention same as user
       secretUserPasswordKey: '{{ tpl .Values.global.pbmsDBUserPasswordKey $ }}'
+    # TODO: Read variables from globals instead of hardcoding below
     - name: '{{ .Release.Name }}_bgtask_db'
       user: '{{ .Release.Name}}_bgtask_db_user'
       secret: '{{ .Release.Name }}_bgtask'
@@ -94,11 +95,12 @@ odoo:
   externalDatabase:
     create: true
     # NOTE: For few parameter below the Odoo templates have been overridden to accomodate
-    # templating. See templates/_helpers.tpl
-    host: '{{ .Values.global.postgresqlHost }}'
+    # templating. See templates/_helpers.tpl. The values below are provide as 'tpl' because
+    # it is template of a template!
+    host: '{{ tpl .Values.global.postgresqlHost $ }}'
     port: 5432
-    database: '{{ .Values.global.pbmsDB }}'
-    user: '{{ .Values.global.pbmsDBUser }}'
+    database: '{{ tpl .Values.global.pbmsDB $ }}'
+    user: '{{ tpl .Values.global.pbmsDBUser $ }}'
     # Provided via secrets below
     password: ""
     postgresqlPostgresUser: "postgres"
@@ -106,12 +108,12 @@ odoo:
     postgresqlPostgresPassword: ""
     # The secrets below should be created before this installation is done.
     # Secret for the DB (not Postgresql server)
-    existingSecret: '{{ .Values.global.pbmsDBSecret }}'
+    existingSecret: '{{ tpl .Values.global.pbmsDBSecret $ }}'
     # This is secret for PostgreSQL server. Both have different secrets (unlike original Odoo
     # Chart where the same secret contained keys for both Postgres and the database user
     existingPostgresSecret: openg2p-commons-postgresql
     # Same as user name as convention
-    existingSecretPasswordKey: '{{ .Values.global.pbmsDBUserPasswordKey }}'
+    existingSecretPasswordKey: '{{ tpl .Values.global.pbmsDBUserPasswordKey $ }}'
     # Hardcoded as this is not likely to change frequently
     existingSecretPostgresPasswordKey: postgres-password
 
@@ -151,7 +153,7 @@ openg2p-pbms-bg-task-api:
     BG_TASK_API_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_API_DB_PORT_SR: 5432
     BG_TASK_API_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
-    BG_TASK_API_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser }}' 
+    BG_TASK_API_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser $ }}' 
 
     BG_TASK_API_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_API_DB_PORT: 5432
@@ -177,13 +179,13 @@ openg2p-pbms-bg-task-celery-beat-producers:
     BG_TASK_CELERY_BEAT_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_CELERY_BEAT_DB_PORT_SR: 5432
     BG_TASK_CELERY_BEAT_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
-    BG_TASK_CELERY_BEAT_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser }}'
+    BG_TASK_CELERY_BEAT_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser $ }}'
 
     # PBMS Database
-    BG_TASK_CELERY_BEAT_DB_USERNAME_PBMS:  '{{ tpl .Values.global.pbmsDBUser }}'
+    BG_TASK_CELERY_BEAT_DB_USERNAME_PBMS:  '{{ tpl .Values.global.pbmsDBUser $ }}'
     BG_TASK_CELERY_BEAT_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.postgresqlHost $ }}'
     BG_TASK_CELERY_BEAT_DB_PORT_PBMS: 5432
-    BG_TASK_CELERY_BEAT_DB_DBNAME_PBMS:  '{{ tpl .Values.global.pbmsDB }}'
+    BG_TASK_CELERY_BEAT_DB_DBNAME_PBMS:  '{{ tpl .Values.global.pbmsDB $ }}'
 
     BG_TASK_CELERY_BEAT_CELERY_BROKER_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0
     BG_TASK_CELERY_BEAT_CELERY_BACKEND_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0

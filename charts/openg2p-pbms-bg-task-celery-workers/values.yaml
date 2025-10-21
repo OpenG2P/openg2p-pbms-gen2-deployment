@@ -220,7 +220,8 @@ envVarsFrom:
   BG_TASK_CELERY_WORKERS_DB_PASSWORD_PBMS:
     secretKeyRef:
       name: '{{ tpl .Values.global.pbmsDBSecret $ }}'
-      key: '{{ tpl .Values.global.pbmsDBuserPasswordKey $ }}'
+      #key: '{{ tpl .Values.global.pbmsDBuserPasswordKey $ }}'
+      key: '{{ .Values.global.pbmsDBuserPasswordKey  }}'
 
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##
