@@ -1,5 +1,27 @@
 global:
 
+  # All the below overriden by same globals in openg2p-pbms/values.yaml
+  postgresqlHost: openg2p-commons-postgresql
+
+  registryPostgresqlHost: openg2p-commons-postgresql
+  registryDB: 'registry_db'
+  registryDBUser: 'registry_db_user'
+  registryDBSecret: 'registry'
+  registryDBUserPasswordKey: 'registry_db_user'
+
+  pbmsDB: '{{ .Release.Name }}_db'
+  pbmsDBUser: '{{ .Release.Name}}_db_user'
+  pbmsDBSecret: '{{ .Release.Name }}'
+  pbmsDBUserPasswordKey: '{{ .Release.Name}}_db_user'
+
+  pbmsBgTaskDB: '{{ .Release.Name }}_bgtask_db'
+  pbmsBgTaskDBUser: '{{ .Release.Name}}_bgtask_db_user'
+  pbmsBgTaskDBSecret: '{{ .Release.Name }}_bgtask'
+  pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name}}_bgtask_db_user'
+
+  # Default name of Redis that is installed with the parent openg2p-pbms chart
+  redisInstallationName: '{{ .Release.Name }}-redis-master'
+
 ## Pod extra labels
 ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 ##
@@ -147,39 +169,39 @@ envVars:
   BG_TASK_CELERY_BEAT_NO_OF_TASKS_TO_PROCESS: 2
 
   # Background Task Database
-  BG_TASK_CELERY_BEAT_DB_USERNAME: 'postgres'
-  BG_TASK_CELERY_BEAT_DB_HOSTNAME: '{{ tpl .Values.postgresqlInstallationName $ }}'
+  BG_TASK_CELERY_BEAT_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
   BG_TASK_CELERY_BEAT_DB_PORT: 5432
-  BG_TASK_CELERY_BEAT_DB_DBNAME: 'bgtaskdb'
+  BG_TASK_CELERY_BEAT_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
+  BG_TASK_CELERY_BEAT_DB_USERNAME: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
 
   # Social Registry Database
-  BG_TASK_CELERY_BEAT_DB_USERNAME_SR: 'postgres'
-  BG_TASK_CELERY_BEAT_DB_HOSTNAME_SR: '{{ tpl .Values.global.registryInstallationName $ }}-postgresql'
+  BG_TASK_CELERY_BEAT_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
   BG_TASK_CELERY_BEAT_DB_PORT_SR: 5432
-  BG_TASK_CELERY_BEAT_DB_DBNAME_SR: 'socialregistrydb'
+  BG_TASK_CELERY_BEAT_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
+  BG_TASK_CELERY_BEAT_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser $ }}'
 
   # PBMS Database
-  BG_TASK_CELERY_BEAT_DB_USERNAME_PBMS: 'postgres'
-  BG_TASK_CELERY_BEAT_DB_HOSTNAME_PBMS: '{{ tpl .Values.postgresqlInstallationName $ }}'
+  BG_TASK_CELERY_BEAT_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.postgresqlHost $ }}'
   BG_TASK_CELERY_BEAT_DB_PORT_PBMS: 5432
-  BG_TASK_CELERY_BEAT_DB_DBNAME_PBMS: 'pbmsdb'
+  BG_TASK_CELERY_BEAT_DB_DBNAME_PBMS: '{{ tpl .Values.global.pbmsDB $ }}'
+  BG_TASK_CELERY_BEAT_DB_USERNAME_PBMS: '{{ tpl .Values.global.pbmsDBUser $ }}'
 
-  BG_TASK_CELERY_BEAT_CELERY_BROKER_URL: redis://{{ tpl .Values.redisInstallationName $ }}:6379/0
-  BG_TASK_CELERY_BEAT_CELERY_BACKEND_URL: redis://{{ tpl .Values.redisInstallationName $ }}:6379/0
+  BG_TASK_CELERY_BEAT_CELERY_BROKER_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0
+  BG_TASK_CELERY_BEAT_CELERY_BACKEND_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0
 
 envVarsFrom:
   BG_TASK_CELERY_BEAT_DB_PASSWORD:
     secretKeyRef:
-      name: '{{ tpl .Values.postgresqlInstallationName $ }}'
-      key: postgres-password
+      name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}' 
+      key: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
   BG_TASK_CELERY_BEAT_DB_PASSWORD_SR:
     secretKeyRef:
-      name: '{{ tpl .Values.global.registryInstallationName $ }}-postgresql'
-      key: postgres-password
+      name: '{{ tpl .Values.global.registryDBSecret $ }}'
+      key: '{{ tpl .Values.global.registryDBUserPasswordKey $ }}'
   BG_TASK_CELERY_BEAT_DB_PASSWORD_PBMS :
     secretKeyRef:
-      name: '{{ tpl .Values.postgresqlInstallationName $ }}'
-      key: postgres-password
+      name: '{{ tpl .Values.global.pbmsDBSecret $ }}'
+      key: '{{ tpl .Values.global.pbmsDBuserPasswordKey $ }}'
 
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##
@@ -264,5 +286,3 @@ postgresCheckerInit:
     do sleep 3;
     done
 
-postgresqlInstallationName: '{{ .Release.Name }}-postgresql'
-redisInstallationName: '{{ .Release.Name }}-redis-master'

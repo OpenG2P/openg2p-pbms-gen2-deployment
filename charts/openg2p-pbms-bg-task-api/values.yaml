@@ -160,7 +160,6 @@ envVars:
   BG_TASK_API_DB_PORT_SR: 5432
   BG_TASK_API_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
 
-  # TBD: set the correct user name
   BG_TASK_API_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
   BG_TASK_API_DB_PORT: 5432
   BG_TASK_API_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
