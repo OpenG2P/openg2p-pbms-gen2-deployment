@@ -36,9 +36,10 @@ global:
   g2pPbmsBgTaskClientId: 'openg2p-pbms-bg-task-{{ tpl .Release.Namespace $ }}'
   g2pPbmsBgTaskClientSecret: ''
 
-  keymanagerBaseUrl: https://keymanager.openg2p.org
-  keymanagerAuthEnabled: 'false'
+  # Internal service name of Keymanager
   keymanagerInstallationName: openg2p-commons-keymanager
+  keymanagerBaseUrl: http://openg2p-commons-keymanager
+  keymanagerAuthEnabled: 'false'
   keymanagerG2pPbmsBgTaskAppId: OPENG2P_G2P_PBMS_BG_TASK
 
   # Default name of Redis that is installed with this chart
@@ -121,28 +122,28 @@ odoo:
   livenessProbe:
     enabled: false
 
-  # TODO: Template the following variables from helm values, instead of hardcoding
-  extraEnvVars:
-  - name: ODOO_SKIP_MODULES_UPDATE
-    value: "yes"
-  - name: LIMIT_TIME_REAL
-    value: "5000"
-  - name: LIST_DB
-    value: "False"
-  - name: SERVER_WIDE_MODULES
-    value: web,queue_job
-  - name: LOG_HANDLER
-    value: '[":INFO"]'
-  - name: LOG_DB
-    value: "False"
-  - name: EXTRA_ADDONS_URLS_TO_PULL
-    value: '{{ tpl .Values.extraAddonsUrlsToPull $ }}'
-  - name: S3_URL
-    value: http://{{ tpl .Values.global.minioInstallationName $ }}:9000
-  - name: S3_REGION
-    value: other
-  - name: S3_ACCESS_KEY_ID
-    value: admin
+  extraEnvVars: '{{- include "pbms.baseEnvVars" (dict "envVars" (merge (deepCopy .Values.envVars) (deepCopy .Values.envVarsFrom)) "context" $) }}'
+
+  envVars:
+    ODOO_SKIP_MODULES_UPDATE: "yes"
+    LIMIT_TIME_REAL: "5000"
+    LIST_DB: "False"
+    SERVER_WIDE_MODULES: web,queue_job
+    LOG_HANDLER: '[":INFO"]'
+    LOG_DB: "False"
+    EXTRA_ADDONS_URLS_TO_PULL: '{{ tpl .Values.extraAddonsUrlsToPull $ }}'
+    S3_URL: http://{{ tpl .Values.global.minioInstallationName $ }}:9000
+    S3_REGION: other
+
+  envVarsFrom:
+    S3_ACCESS_KEY_ID:
+      secretKeyRef:
+        key: root-user
+        name: '{{ tpl .Values.global.minioInstallationName $ }}'
+    S3_SECRET_ACCESS_KEY:
+      secretKeyRef:
+        key: root-password
+        name: '{{ tpl .Values.global.minioInstallationName $ }}'
 
 openg2p-pbms-bg-task-api:
   enabled: true
