@@ -239,26 +239,6 @@ openg2p-pbms-bg-task-celery-workers:
     BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_CLIENT_ID: "openg2p-pbms-dev"
     BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_CLIENT_SECRET: ""
 
-keymanager:
-  enabled: false
-  hostname: keymanager-pbms.openg2p.sandbox.net
-  springConfig:
-    names: application,kernel
-    profile: default
-    gitRepo:
-      enabled: true
-      repoUrl: https://github.com/openg2p/mosip-config
-      branch: master
-    rawConfig: ""
-  envVars:
-    auth_server_admin_allowed_audience: 'openg2p-sr,openg2p-sr-{{ .Release.Namespace }},openg2p-pbms,openg2p-pbms-{{ .Release.Namespace }},openg2p-spar-{{ .Release.Namespace }}'
-  postgresInit:
-    commonAnnotations:
-      "helm.sh/hook-weight": "0"
-  keygen:
-    commonAnnotations:
-      "helm.sh/hook-weight": "1"
-
 redis:
   enabled: true
   image:
