@@ -1,6 +1,6 @@
 apiVersion: v2
-name: openg2p-pbms-bg-task-api
-description: A Helm chart for OpenG2P G2P PBMS Background Task API
+name: openg2p-pbms-staff-portal-api
+description: A Helm chart for OpenG2P G2P PBMS Staff Portal API
 type: application
 version: 3.0.0
 dependencies:
@@ -9,10 +9,10 @@ dependencies:
   version: 2.x.x
 keywords:
   - openg2p-pbms-bg-task
-  - openg2p-pbms-bg-task-api
+  - openg2p-pbms-staff-portal-api
 maintainers:
   - email: info@openg2p.org
     name: OpenG2P
 icon: https://openg2p.github.io/openg2p-helm/openg2p-logo.png
 annotations:
-  catalog.cattle.io/display-name: "OpenG2P PBMS Background Task API"
+  catalog.cattle.io/display-name: "OpenG2P PBMS Staff Portal API"

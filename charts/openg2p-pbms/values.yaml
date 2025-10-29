@@ -131,6 +131,11 @@ odoo:
     SERVER_WIDE_MODULES: web,queue_job
     LOG_HANDLER: '[":INFO"]'
     LOG_DB: "False"
+    ODOO_BOOTSTRAP_MODULES: >-
+      base,
+      g2p_app_filter,
+      g2p_auth_oidc,
+      g2p_auth_oidc_keycloak,
     EXTRA_ADDONS_URLS_TO_PULL: '{{ tpl .Values.extraAddonsUrlsToPull $ }}'
     S3_URL: http://{{ tpl .Values.global.minioInstallationName $ }}:9000
     S3_REGION: other
@@ -145,22 +150,22 @@ odoo:
         key: root-password
         name: '{{ tpl .Values.global.minioInstallationName $ }}'
 
-openg2p-pbms-bg-task-api:
+openg2p-pbms-staff-portal-api:
   enabled: true
   nameOverride: api
 
   keymanagerInstallationName: '{{ tpl .Values.global.keymanagerInstallationName $ }}'
 
   envVars:
-    BG_TASK_API_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
-    BG_TASK_API_DB_PORT_SR: 5432
-    BG_TASK_API_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
-    BG_TASK_API_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser $ }}' 
+    STAFF_PORTAL_API_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
+    STAFF_PORTAL_API_DB_PORT_SR: 5432
+    STAFF_PORTAL_API_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
+    STAFF_PORTAL_API_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser $ }}' 
 
-    BG_TASK_API_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
-    BG_TASK_API_DB_PORT: 5432
-    BG_TASK_API_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
-    BG_TASK_API_DB_USERNAME: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
+    STAFF_PORTAL_API_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
+    STAFF_PORTAL_API_DB_PORT: 5432
+    STAFF_PORTAL_API_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
+    STAFF_PORTAL_API_DB_USERNAME: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
 
 openg2p-pbms-bg-task-celery-beat-producers:
   enabled: true

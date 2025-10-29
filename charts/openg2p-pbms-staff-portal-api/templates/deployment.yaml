@@ -54,7 +54,7 @@ spec:
           env: {{- include "g2pPbmsBgTaskApi.envVars" . | indent 12 }}
         {{- end }}
       containers:
-        - name: g2p-pbms-bg-task-api
+        - name: g2p-pbms-staff-portal-api
           image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.lifecycleHooks }}

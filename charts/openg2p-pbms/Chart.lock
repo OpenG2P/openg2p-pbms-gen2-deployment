@@ -5,7 +5,7 @@ dependencies:
 - name: odoo
   repository: https://openg2p.github.io/openg2p-helm
   version: 26.3.0
-- name: openg2p-pbms-bg-task-api
+- name: openg2p-pbms-staff-portal-api
   repository: ""
   version: 3.0.0
 - name: openg2p-pbms-bg-task-celery-beat-producers
@@ -17,5 +17,5 @@ dependencies:
 - name: redis
   repository: https://openg2p.github.io/openg2p-helm
   version: 19.6.4
-digest: sha256:f9fe20637789352b69c4c8d5a9e8581db903b114a8959df2da141378c7d146ed
-generated: "2025-10-21T07:36:15.927719+05:30"
+digest: sha256:59f5242af6954adaa5373d236434829f3471ed3538160235c9c1016174258675
+generated: "2025-10-28T15:23:00.904549849+05:30"
