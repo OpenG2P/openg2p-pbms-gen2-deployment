@@ -150,22 +150,6 @@ odoo:
         key: root-password
         name: '{{ tpl .Values.global.minioInstallationName $ }}'
 
-openg2p-pbms-staff-portal-api:
-  enabled: true
-  nameOverride: api
-
-  keymanagerInstallationName: '{{ tpl .Values.global.keymanagerInstallationName $ }}'
-
-  envVars:
-    STAFF_PORTAL_API_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
-    STAFF_PORTAL_API_DB_PORT_SR: 5432
-    STAFF_PORTAL_API_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
-    STAFF_PORTAL_API_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser $ }}' 
-
-    STAFF_PORTAL_API_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
-    STAFF_PORTAL_API_DB_PORT: 5432
-    STAFF_PORTAL_API_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
-    STAFF_PORTAL_API_DB_USERNAME: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
 
 openg2p-pbms-bg-task-celery-beat-producers:
   enabled: true
@@ -197,52 +181,6 @@ openg2p-pbms-bg-task-celery-beat-producers:
     BG_TASK_CELERY_BEAT_CELERY_BROKER_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0
     BG_TASK_CELERY_BEAT_CELERY_BACKEND_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0
 
-openg2p-pbms-bg-task-celery-workers:
-  enabled: true
-  nameOverride: celery-worker
-
-  keymanagerInstallationName: '{{ tpl .Values.global.keymanagerInstallationName $ }}'
-
-  envVars:
-    BG_TASK_CELERY_WORKERS_G2P_BRIDGE_BASE_URL: "https://g2pbridge-api"
-    BG_TASK_CELERY_WORKERS_CELERY_BROKER_URL: "redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0"
-    BG_TASK_CELERY_WORKERS_CELERY_BACKEND_URL: "redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0"
-
-    BG_TASK_CELERY_WORKERS_BATCH_SIZE: 500
-
-    # BG Task Database
-    BG_TASK_CELERY_WORKERS_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
-    BG_TASK_CELERY_WORKERS_DB_PORT: 5432
-    BG_TASK_CELERY_WORKERS_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
-    BG_TASK_CELERY_WORKERS_DB_USERNAME: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}' 
-
-    # Social Registry Database
-    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
-    BG_TASK_CELERY_WORKERS_DB_PORT_SR: 5432
-    BG_TASK_CELERY_WORKERS_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
-    BG_TASK_CELERY_WORKERS_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser $ }}'
-
-    # PBMS Database
-    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.postgresqlHost $ }}'
-    BG_TASK_CELERY_WORKERS_DB_PORT_PBMS: 5432
-    BG_TASK_CELERY_WORKERS_DB_DBNAME_PBMS: '{{ tpl .Values.global.pbmsDB $ }}'
-    BG_TASK_CELERY_WORKERS_DB_USERNAME_PBMS: '{{ tpl .Values.global.pbmsDBUser $ }}'
-
-    # Background Task Database (async)
-    BG_TASK_CELERY_WORKERS_DB_DRIVER_ASYNC: postgresql+asyncpg
-    BG_TASK_CELERY_WORKERS_DB_USERNAME_ASYNC: postgres
-    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_ASYNC: '{{ tpl .Values.global.postgresqlHost $ }}'
-    BG_TASK_CELERY_WORKERS_DB_PORT_ASYNC: 5432
-    BG_TASK_CELERY_WORKERS_DB_DBNAME_ASYNC: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
-
-    BG_TASK_CELERY_WORKERS_SIGN_KEY_KEYMANAGER_APP_ID: "PBMS"
-    BG_TASK_CELERY_WORKERS_SIGN_KEY_KEYMANAGER_REF_ID: ""
-    BG_TASK_CELERY_WORKERS_KEYMANAGER_API_TIMEOUT: 10
-    BG_TASK_CELERY_WORKERS_KEYMANAGER_API_BASE_URL: '{{ tpl .Values.global.keymanagerBaseUrl $ }}'
-    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_ENABLED: '{{ tpl .Values.global.keymanagerAuthEnabled $ }}'
-    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_URL: ""
-    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_CLIENT_ID: "openg2p-pbms-dev"
-    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_CLIENT_SECRET: ""
 
 redis:
   enabled: true
@@ -259,6 +197,331 @@ redis:
 
 serviceProviderIngress:
   enabled: false
+
+celeryWorkers:
+  enabled: true
+  nameOverride: celery-worker
+
+  keymanagerInstallationName: '{{ tpl .Values.global.keymanagerInstallationName $ }}'
+
+  podLabels: {}
+  commonLabels: {}
+  commonAnnotations: {}
+  podAnnotations: {}
+
+  replicaCount: 1
+
+  updateStrategy:
+    type: RollingUpdate
+
+  serviceAccount:
+    create: false
+    name: ""
+
+  image:
+    repository: openg2p/openg2p-pbms-bg-task-celery-workers
+    tag: "3.0.0"
+    pullPolicy: Always
+
+  hostAliases: []
+  affinity: {}
+  podAffinityPreset: ""
+  podAntiAffinityPreset: soft
+
+  nodeAffinityPreset:
+    type: ""
+    key: ""
+    values: []
+
+  nodeSelector: {}
+  tolerations: []
+
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+
+  initContainers: []
+
+  lifecycleHooks: {}
+
+  containerSecurityContext:
+    enabled: false
+    runAsUser: 1001
+    runAsNonRoot: true
+
+  envVars:
+    BG_TASK_CELERY_WORKERS_G2P_BRIDGE_BASE_URL: "https://g2pbridge-api"
+    BG_TASK_CELERY_WORKERS_CELERY_BROKER_URL: "redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0"
+    BG_TASK_CELERY_WORKERS_CELERY_BACKEND_URL: "redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0"
+
+    BG_TASK_CELERY_WORKERS_BATCH_SIZE: 500
+
+    # BG Task Database
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
+    BG_TASK_CELERY_WORKERS_DB_PORT: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
+    BG_TASK_CELERY_WORKERS_DB_USERNAME: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
+
+    # Social Registry Database
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
+    BG_TASK_CELERY_WORKERS_DB_PORT_SR: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
+    BG_TASK_CELERY_WORKERS_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser $ }}'
+
+    # PBMS Database
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.postgresqlHost $ }}'
+    BG_TASK_CELERY_WORKERS_DB_PORT_PBMS: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_PBMS: '{{ tpl .Values.global.pbmsDB $ }}'
+    BG_TASK_CELERY_WORKERS_DB_USERNAME_PBMS: '{{ tpl .Values.global.pbmsDBUser $ }}'
+
+    # Background Task Database (async)
+    BG_TASK_CELERY_WORKERS_DB_DRIVER_ASYNC: postgresql+asyncpg
+    BG_TASK_CELERY_WORKERS_DB_HOSTNAME_ASYNC: '{{ tpl .Values.global.postgresqlHost $ }}'
+    BG_TASK_CELERY_WORKERS_DB_PORT_ASYNC: 5432
+    BG_TASK_CELERY_WORKERS_DB_DBNAME_ASYNC: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
+    BG_TASK_CELERY_WORKERS_DB_USERNAME_ASYNC: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
+
+    BG_TASK_CELERY_WORKERS_SIGN_KEY_KEYMANAGER_APP_ID: "PBMS"
+    BG_TASK_CELERY_WORKERS_SIGN_KEY_KEYMANAGER_REF_ID: ""
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_API_TIMEOUT: 10
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_API_BASE_URL: '{{ tpl .Values.global.keymanagerBaseUrl $ }}'
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_ENABLED: '{{ tpl .Values.global.keymanagerAuthEnabled $ }}'
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_URL: ""
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_CLIENT_ID: "openg2p-pbms-dev"
+    BG_TASK_CELERY_WORKERS_KEYMANAGER_AUTH_CLIENT_SECRET: ""
+
+  envVarsFrom:
+    BG_TASK_CELERY_WORKERS_DB_PASSWORD:
+      secretKeyRef:
+        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}' 
+        key: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
+    BG_TASK_CELERY_WORKERS_DB_PASSWORD_ASYNC:
+      secretKeyRef:
+        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}' 
+        key: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
+    BG_TASK_CELERY_WORKERS_DB_PASSWORD_SR:
+      secretKeyRef:
+        name: '{{ tpl .Values.global.registryDBSecret $ }}'
+        key: '{{ tpl .Values.global.registryDBUserPasswordKey $ }}'
+    BG_TASK_CELERY_WORKERS_DB_PASSWORD_PBMS:
+      secretKeyRef:
+        name: '{{ tpl .Values.global.pbmsDBSecret $ }}'
+        key: '{{ tpl .Values.global.pbmsDBUserPasswordKey $ }}'
+
+  resources: {}
+
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 30
+    successThreshold: 1
+
+  livenessProbe:
+    enabled: false
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 20
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+
+  readinessProbe:
+    enabled: false
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+
+  sidecars: []
+
+  postgresCheckerInit:
+    enabled: true
+    image:
+      repository: jbergknoff/postgresql-client
+      tag: latest
+      pullPolicy: IfNotPresent
+    command:
+    - 'sh'
+    - '-c'
+    - >-
+      until pg_isready
+      -U ${BG_TASK_CELERY_WORKERS_DB_USERNAME}
+      -h ${BG_TASK_CELERY_WORKERS_DB_HOSTNAME}
+      -p ${BG_TASK_CELERY_WORKERS_DB_PORT:-5432}
+      -d ${BG_TASK_CELERY_WORKERS_DB_DBNAME:-bgtaskdb};
+      do sleep 3;
+      done
+
+staffPortalApi:
+  enabled: true
+  nameOverride: api
+
+  keymanagerInstallationName: '{{ tpl .Values.global.keymanagerInstallationName $ }}'
+
+  podLabels: {}
+  commonLabels: {}
+  commonAnnotations: {}
+  podAnnotations: {}
+
+  replicaCount: 1
+
+  updateStrategy:
+    type: RollingUpdate
+
+  serviceAccount:
+    create: false
+    name: ""
+
+  image:
+    repository: openg2p/openg2p-pbms-staff-portal-api
+    tag: "3.0.0"
+    pullPolicy: Always
+
+  hostAliases: []
+  affinity: {}
+  podAffinityPreset: ""
+  podAntiAffinityPreset: soft
+
+  nodeAffinityPreset:
+    type: ""
+    key: ""
+    values: []
+
+  nodeSelector: {}
+  tolerations: []
+
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+
+  initContainers: []
+
+  lifecycleHooks: {}
+
+  containerSecurityContext:
+    enabled: false
+    runAsUser: 1001
+    runAsNonRoot: true
+
+  envVars:
+    STAFF_PORTAL_API_DB_USERNAME_SR: '{{ tpl .Values.global.registryDBUser $ }}'
+    STAFF_PORTAL_API_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
+    STAFF_PORTAL_API_DB_PORT_SR: 5432
+    STAFF_PORTAL_API_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
+
+    STAFF_PORTAL_API_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
+    STAFF_PORTAL_API_DB_PORT: 5432
+    STAFF_PORTAL_API_DB_DBNAME: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
+    STAFF_PORTAL_API_DB_USERNAME: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
+
+  envVarsFrom:
+    STAFF_PORTAL_API_DB_PASSWORD:
+      secretKeyRef:
+        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}' 
+        key:  '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
+    STAFF_PORTAL_API_DB_PASSWORD_SR:
+      secretKeyRef:
+        name: '{{ tpl .Values.global.registryDBSecret $ }}'
+        key: '{{ tpl .Values.global.registryDBUserPasswordKey $ }}'
+
+  resources: {}
+
+  startupProbe:
+    enabled: true
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 30
+    successThreshold: 1
+
+  livenessProbe:
+    enabled: true
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 20
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+
+  readinessProbe:
+    enabled: true
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+
+  sidecars: []
+
+  istio:
+    enabled: true
+    virtualservice:
+      enabled: true
+      host: ""
+      gateway: "internal"
+      destination: '{{ include "common.names.fullname" . }}-staff-portal-api'
+      destinationPort: '{{ .Values.staffPortalApi.service.port }}'
+      prefix: /api/g2p-pbms-bg-task/
+      rewriteUri: "/"
+    gateway:
+      enabled: false
+      host: ""
+      ingressController:
+        istio: ingressgateway
+      httpTlsRedirect: false
+      httpEnabled: true
+      httpsEnabled: false
+      tls:
+        mode: SIMPLE
+        credentialName: ""
+
+  containerPort: 8000
+
+  service:
+    type: ClusterIP
+    port: 80
+    nodePorts:
+      http: ""
+      https: ""
+    externalTrafficPolicy: Cluster
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 1
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+
+  postgresCheckerInit:
+    enabled: true
+    image:
+      repository: jbergknoff/postgresql-client
+      tag: latest
+      pullPolicy: IfNotPresent
+    command:
+    - 'sh'
+    - '-c'
+    - 'until pg_isready -U ${STAFF_PORTAL_API_DB_USERNAME} -h ${STAFF_PORTAL_API_DB_HOSTNAME} -p ${STAFF_PORTAL_API_DB_PORT:-5432} -d ${STAFF_PORTAL_API_DB_DBNAME:-pbms-bg-task-db}; do sleep 3; done'
+
 selfServiceIngress:
   enabled: false
 

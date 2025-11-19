@@ -101,3 +101,96 @@ Render Env values section
 {{- end }}
 {{- end }}
 {{- end -}}
+
+{{/*
+Templates for openg2p-pbms-bg-task-celery-beat-producers
+*/}}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "pbms.beat-producers.serviceAccountName" -}}
+{{- if .Values.beatProducers.serviceAccount.create -}}
+{{ default (include "common.names.fullname" .) .Values.beatProducers.serviceAccount.name }}
+{{- else -}}
+{{ default "default" .Values.beatProducers.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the proper Docker Image Registry Secret Names
+*/}}
+{{- define "pbms.beat-producers.imagePullSecrets" -}}
+{{- include "common.images.pullSecrets" (dict "images" (list .Values.beatProducers.image .Values.beatProducers.postgresCheckerInit.image) "global" .Values.global) -}}
+{{- end -}}
+
+{{/*
+Render Env values section for beat-producers
+*/}}
+{{- define "pbms.beat-producers.envVars" -}}
+{{- $envVars := merge (deepCopy .Values.beatProducers.envVars) (deepCopy .Values.beatProducers.envVarsFrom) -}}
+{{- include "pbms.baseEnvVars" (dict "envVars" $envVars "context" $) }}
+{{- end -}}
+
+{{/*
+Templates for openg2p-pbms-bg-task-celery-workers
+*/}}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "pbms.celery-workers.serviceAccountName" -}}
+{{- if .Values.celeryWorkers.serviceAccount.create -}}
+{{ default (include "common.names.fullname" .) .Values.celeryWorkers.serviceAccount.name }}
+{{- else -}}
+{{ default "default" .Values.celeryWorkers.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the proper Docker Image Registry Secret Names
+*/}}
+{{- define "pbms.celery-workers.imagePullSecrets" -}}
+{{- include "common.images.pullSecrets" (dict "images" (list .Values.celeryWorkers.image .Values.celeryWorkers.postgresCheckerInit.image) "global" .Values.global) -}}
+{{- end -}}
+
+{{/*
+Render Env values section for celery-workers
+*/}}
+{{- define "pbms.celery-workers.envVars" -}}
+{{- $envVars := merge (deepCopy .Values.celeryWorkers.envVars) (deepCopy .Values.celeryWorkers.envVarsFrom) -}}
+{{- include "pbms.baseEnvVars" (dict "envVars" $envVars "context" $) }}
+{{- end -}}
+
+{{/*
+Templates for openg2p-pbms-staff-portal-api
+*/}}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "pbms.staff-portal-api.serviceAccountName" -}}
+{{- if .Values.staffPortalApi.serviceAccount.create -}}
+{{ default (include "common.names.fullname" .) .Values.staffPortalApi.serviceAccount.name }}
+{{- else -}}
+{{ default "default" .Values.staffPortalApi.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the proper Docker Image Registry Secret Names
+*/}}
+{{- define "pbms.staff-portal-api.imagePullSecrets" -}}
+{{- include "common.images.pullSecrets" (dict "images" (list .Values.staffPortalApi.image .Values.staffPortalApi.postgresCheckerInit.image) "global" .Values.global) -}}
+{{- end -}}
+
+{{/*
+Render Env values section for staff-portal-api
+*/}}
+{{- define "pbms.staff-portal-api.envVars" -}}
+{{- $envVars := merge (deepCopy .Values.staffPortalApi.envVars) (deepCopy .Values.staffPortalApi.envVarsFrom) -}}
+{{- include "pbms.baseEnvVars" (dict "envVars" $envVars "context" $) }}
+{{- end -}}
+
+
+

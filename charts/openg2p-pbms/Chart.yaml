@@ -12,15 +12,6 @@ dependencies:
   version: 26.3.0
   repository: https://openg2p.github.io/openg2p-helm
   condition: odoo.enabled
-- name: openg2p-pbms-staff-portal-api
-  version: 3.0.0
-  condition: openg2p-pbms-staff-portal-api.enabled
-- name: openg2p-pbms-bg-task-celery-beat-producers
-  version: 3.0.0
-  condition: openg2p-pbms-bg-task-celery-beat-producers.enabled
-- name: openg2p-pbms-bg-task-celery-workers
-  version: 3.0.0
-  condition: openg2p-pbms-bg-task-celery-workers.enabled
 - name: redis
   version: 19.6.4
   repository: https://openg2p.github.io/openg2p-helm
