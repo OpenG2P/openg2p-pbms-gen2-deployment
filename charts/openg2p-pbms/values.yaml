@@ -150,7 +150,7 @@ odoo:
         name: '{{ tpl .Values.global.minioInstallationName $ }}'
 
 
-openg2p-pbms-bg-task-celery-beat-producers:
+beatProducers:
   enabled: true
   nameOverride: celery-beat-producer
 
@@ -180,6 +180,9 @@ openg2p-pbms-bg-task-celery-beat-producers:
     BG_TASK_CELERY_BEAT_CELERY_BROKER_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0
     BG_TASK_CELERY_BEAT_CELERY_BACKEND_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0
 
+  serviceAccount:
+    create: false
+    name: ""
 
 redis:
   enabled: true
