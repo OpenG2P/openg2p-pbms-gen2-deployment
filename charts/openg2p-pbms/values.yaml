@@ -64,11 +64,10 @@ postgres-init:
       secret: '{{ tpl .Values.global.pbmsDBSecret $ }}'
       # As convention same as user
       secretUserPasswordKey: '{{ tpl .Values.global.pbmsDBUserPasswordKey $ }}'
-    # TODO: Read variables from globals instead of hardcoding below
-    - name: '{{ .Release.Name }}_bgtask_db'
-      user: '{{ .Release.Name}}_bgtask_db_user'
-      secret: '{{ .Release.Name }}-bgtask'
-      secretUserPasswordKey: '{{ .Release.Name}}_bgtask_db_user'
+    - name: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
+      user: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
+      secret: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}'
+      secretUserPasswordKey: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
 
 odoo:
   enabled: true
