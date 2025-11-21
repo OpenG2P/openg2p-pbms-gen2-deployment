@@ -121,38 +121,80 @@ odoo:
   livenessProbe:
     enabled: false
 
-  extraEnvVars: '{{- include "pbms.baseEnvVars" (dict "envVars" (merge (deepCopy .Values.envVars) (deepCopy .Values.envVarsFrom)) "context" $) }}'
-
-  envVars:
-    ODOO_SKIP_MODULES_UPDATE: "yes"
-    LIMIT_TIME_REAL: "5000"
-    LIST_DB: "False"
-    SERVER_WIDE_MODULES: web,queue_job
-    LOG_HANDLER: '[":INFO"]'
-    LOG_DB: "False"
-    ODOO_BOOTSTRAP_MODULES: >-
-      base,
-      g2p_app_filter,
-      g2p_auth_oidc,
-      g2p_auth_oidc_keycloak,
-    EXTRA_ADDONS_URLS_TO_PULL: '{{ tpl .Values.extraAddonsUrlsToPull $ }}'
-    S3_URL: http://{{ tpl .Values.global.minioInstallationName $ }}:9000
-    S3_REGION: other
-
-  envVarsFrom:
-    S3_ACCESS_KEY_ID:
-      secretKeyRef:
-        key: root-user
-        name: '{{ tpl .Values.global.minioInstallationName $ }}'
-    S3_SECRET_ACCESS_KEY:
-      secretKeyRef:
-        key: root-password
-        name: '{{ tpl .Values.global.minioInstallationName $ }}'
+  # TODO: Template the following variables from helm values, instead of hardcoding
+  extraEnvVars:
+  - name: ODOO_SKIP_MODULES_UPDATE
+    value: "yes"
+  - name: LIMIT_TIME_REAL
+    value: "5000"
+  - name: LIST_DB
+    value: "False"
+  - name: SERVER_WIDE_MODULES
+    value: web,queue_job
+  - name: LOG_HANDLER
+    value: '[":INFO"]'
+  - name: LOG_DB
+    value: "False"
+  - name: EXTRA_ADDONS_URLS_TO_PULL
+    value: '{{ tpl .Values.extraAddonsUrlsToPull $ }}'
+  - name: S3_URL
+    value: http://{{ tpl .Values.global.minioInstallationName $ }}:9000
+  - name: S3_REGION
+    value: other
+  - name: S3_ACCESS_KEY_ID
+    value: admin
 
 
 beatProducers:
   enabled: true
   nameOverride: celery-beat-producer
+
+  podLabels: {}
+  commonLabels: {}
+  commonAnnotations: {}
+  podAnnotations: {}
+
+  replicaCount: 1
+
+  updateStrategy:
+    type: RollingUpdate
+
+  serviceAccount:
+    create: false
+    name: ""
+
+  image:
+    repository: openg2p/openg2p-pbms-bg-task-celery-beat-producers
+    tag: "3.0.0"
+    pullPolicy: Always
+
+  hostAliases: []
+  affinity: {}
+  podAffinityPreset: ""
+  podAntiAffinityPreset: soft
+
+  nodeAffinityPreset:
+    type: ""
+    key: ""
+    values: []
+
+  nodeSelector: {}
+  tolerations: []
+
+  priorityClassName: ""
+
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+
+  initContainers: []
+
+  lifecycleHooks: {}
+
+  containerSecurityContext:
+    enabled: false
+    runAsUser: 1001
+    runAsNonRoot: true
 
   envVars:
     BG_TASK_CELERY_BEAT_PRODUCER_FREQUENCY: 10
@@ -180,9 +222,74 @@ beatProducers:
     BG_TASK_CELERY_BEAT_CELERY_BROKER_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0
     BG_TASK_CELERY_BEAT_CELERY_BACKEND_URL: redis://{{ tpl .Values.global.redisInstallationName $ }}:6379/0
 
-  serviceAccount:
-    create: false
-    name: ""
+  envVarsFrom:
+    BG_TASK_CELERY_BEAT_DB_PASSWORD:
+      secretKeyRef:
+        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}' 
+        key: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
+    BG_TASK_CELERY_BEAT_DB_PASSWORD_SR:
+      secretKeyRef:
+        name: '{{ tpl .Values.global.registryDBSecret $ }}'
+        key: '{{ tpl .Values.global.registryDBUserPasswordKey $ }}'
+    BG_TASK_CELERY_BEAT_DB_PASSWORD_PBMS :
+      secretKeyRef:
+        name: '{{ tpl .Values.global.pbmsDBSecret $ }}'
+        key: '{{ tpl .Values.global.pbmsDBUserPasswordKey $ }}'
+
+  resources: {}
+
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 30
+    successThreshold: 1
+
+  livenessProbe:
+    enabled: false
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 20
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+
+  readinessProbe:
+    enabled: false
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+
+  sidecars: []
+
+  postgresCheckerInit:
+    enabled: true
+    image:
+      repository: jbergknoff/postgresql-client
+      tag: latest
+      pullPolicy: IfNotPresent
+    command:
+    - 'sh'
+    - '-c'
+    - >-
+      until pg_isready
+      -U ${BG_TASK_CELERY_BEAT_DB_USERNAME}
+      -h ${BG_TASK_CELERY_BEAT_DB_HOSTNAME}
+      -p ${BG_TASK_CELERY_BEAT_DB_PORT:-5432}
+      -d ${BG_TASK_CELERY_BEAT_DB_DBNAME:-bgtaskdb};
+      do sleep 3;
+      done
 
 redis:
   enabled: true
