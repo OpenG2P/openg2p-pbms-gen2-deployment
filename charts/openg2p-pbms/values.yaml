@@ -67,7 +67,7 @@ postgres-init:
     - name: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
       user: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
       secret: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}'
-      secretUserPasswordKey: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
+      secretUserPasswordKey: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}'
 
 odoo:
   enabled: true
@@ -225,8 +225,8 @@ beatProducers:
   envVarsFrom:
     BG_TASK_CELERY_BEAT_DB_PASSWORD:
       secretKeyRef:
-        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}' 
-        key: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
+        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}'
+        key: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}'
     BG_TASK_CELERY_BEAT_DB_PASSWORD_SR:
       secretKeyRef:
         name: '{{ tpl .Values.global.registryDBSecret $ }}'
@@ -276,7 +276,7 @@ beatProducers:
   postgresCheckerInit:
     enabled: true
     image:
-      repository: jbergknoff/postgresql-client
+      repository: openg2p/postgresql-client
       tag: latest
       pullPolicy: IfNotPresent
     command:
@@ -402,12 +402,12 @@ celeryWorkers:
   envVarsFrom:
     BG_TASK_CELERY_WORKERS_DB_PASSWORD:
       secretKeyRef:
-        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}' 
-        key: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
+        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}'
+        key: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}'
     BG_TASK_CELERY_WORKERS_DB_PASSWORD_ASYNC:
       secretKeyRef:
-        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}' 
-        key: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
+        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}'
+        key: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}'
     BG_TASK_CELERY_WORKERS_DB_PASSWORD_SR:
       secretKeyRef:
         name: '{{ tpl .Values.global.registryDBSecret $ }}'
@@ -537,8 +537,8 @@ staffPortalApi:
   envVarsFrom:
     STAFF_PORTAL_API_DB_PASSWORD:
       secretKeyRef:
-        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}' 
-        key:  '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}' 
+        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}'
+        key:  '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}'
     STAFF_PORTAL_API_DB_PASSWORD_SR:
       secretKeyRef:
         name: '{{ tpl .Values.global.registryDBSecret $ }}'
