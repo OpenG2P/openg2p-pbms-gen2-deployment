@@ -2,7 +2,7 @@ global:
   keycloakBaseUrl: https://keycloak.openg2p.org
   keycloakIssuerUrl: '{{ tpl .Values.global.keycloakBaseUrl $ }}/realms/master'
 
-  postgresqlHost: openg2p-commons-postgresql
+  postgresqlHost: commons-postgresql
 
   pbmsDB: '{{ .Release.Name }}_db'
   pbmsDBUser: '{{ .Release.Name }}_db_user'
@@ -21,14 +21,14 @@ global:
   registryDBSecret: 'registry'
   registryDBUserPasswordKey: 'registry_db_user'
 
-  mailInstallationName: openg2p-commons-mail
+  mailInstallationName: commons-mail
 
   sysAdminEmail: admin@openg2p.sandbox.net
 
   pbmsOdooOidcClientID: 'openg2p-pbms-{{ .Release.Namespace }}'
   pbmsOdooOidcClientSecret: ''
 
-  minioInstallationName: openg2p-commons-minio
+  minioInstallationName: commons-minio
 
   # TODO: Add this to questions.yaml
   g2pPbmsBgTaskHostname: '{{ .Release.Name }}-bg-task.devops.openg2p.org'
@@ -37,8 +37,8 @@ global:
   g2pPbmsBgTaskClientSecret: ''
 
   # Internal service name of Keymanager
-  keymanagerInstallationName: openg2p-commons-keymanager
-  keymanagerBaseUrl: http://openg2p-commons-keymanager
+  keymanagerInstallationName: commons-keymanager
+  keymanagerBaseUrl: http://commons-keymanager
   keymanagerAuthEnabled: 'false'
   keymanagerG2pPbmsBgTaskAppId: OPENG2P_G2P_PBMS_BG_TASK
 
@@ -54,7 +54,7 @@ postgres-init:
     host: '{{ .Values.global.postgresqlHost }}'
     port: 5432
     # Hard coding. Same as one defined under Odoo
-    existingSecret: openg2p-commons-postgresql
+    existingSecret: commons-postgresql
     existingSecretPostgresPasswordKey: postgres-password
   databases:
     # Same as db in Odoo
@@ -112,7 +112,7 @@ odoo:
     existingSecret: '{{ tpl .Values.global.pbmsDBSecret $ }}'
     # This is secret for PostgreSQL server. Both have different secrets (unlike original Odoo
     # Chart where the same secret contained keys for both Postgres and the database user
-    existingPostgresSecret: openg2p-commons-postgresql
+    existingPostgresSecret: commons-postgresql
     # Same as user name as convention
     existingSecretPasswordKey: '{{ tpl .Values.global.pbmsDBUserPasswordKey $ }}'
     # Hardcoded as this is not likely to change frequently
