@@ -1,6 +1,6 @@
 apiVersion: v2
 name: openg2p-pbms
-description: A Helm chart for OpenG2P PBMS
+description: Helm chart for OpenG2P PBMS
 type: application
 version: 4.0.0-develop 
 dependencies:
