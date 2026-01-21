@@ -25,9 +25,6 @@ global:
 
   sysAdminEmail: admin@openg2p.sandbox.net
 
-  pbmsOdooOidcClientID: 'openg2p-pbms-{{ .Release.Namespace }}'
-  pbmsOdooOidcClientSecret: ''
-
   minioInstallationName: commons-minio
 
   # TODO: Add this to questions.yaml
@@ -71,10 +68,6 @@ postgres-init:
 
 odoo:
   enabled: true
-
-  oidcIssuerUrl: '{{ tpl .Values.global.keycloakIssuerUrl $ }}'
-  oidcClientId: '{{ tpl .Values.global.pbmsOdooOidcClientID $ }}'
-  oidcClientSecret: '{{ tpl .Values.global.pbmsOdooOidcClientSecret $ }}'
 
   extraAddonsUrlsToPull: ''
 

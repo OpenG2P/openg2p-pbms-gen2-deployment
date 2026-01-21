@@ -24,18 +24,6 @@ questions:
   label: Email Service Name
   group: General Settings
 
-- variable: odoo.oidcClientId
-  description: OIDC Client ID for PBMS (Odoo)
-  type: string
-  label: OIDC Client ID
-  group: Odoo
-
-- variable: odoo.oidcClientSecret
-  description: OIDC Client Secret for PBMS (Odoo)
-  type: string
-  label: OIDC Client Secret
-  group: Odoo
-
 # Background Task Settings
 - variable: openg2p-pbms-bg-task-celery-beat-producers.envVars.BG_TASK_CELERY_BEAT_PRODUCER_FREQUENCY
   description: Frequency (in seconds) for Celery Beat Producer to run.
