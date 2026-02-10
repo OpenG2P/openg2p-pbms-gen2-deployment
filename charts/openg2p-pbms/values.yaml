@@ -1,25 +1,25 @@
 global:
-  keycloakBaseUrl: https://keycloak.openg2p.org
+  keycloakBaseUrl: https://keycloak2.openg2p.org
   keycloakIssuerUrl: '{{ tpl .Values.global.keycloakBaseUrl $ }}/realms/master'
 
   postgresqlHost: commons-postgresql
 
-  pbmsDB: '{{ .Release.Name }}_db'
-  pbmsDBUser: '{{ .Release.Name }}_db_user'
+  pbmsDB: '{{ .Release.Name }}'
+  pbmsDBUser: '{{ .Release.Name }}_user'
   pbmsDBSecret: '{{ .Release.Name }}'
-  pbmsDBUserPasswordKey: '{{ .Release.Name }}_db_user'
+  pbmsDBUserPasswordKey: '{{ .Release.Name }}-db-user'
 
-  pbmsBgTaskDB: '{{ .Release.Name }}_bgtask_db'
-  pbmsBgTaskDBUser: '{{ .Release.Name }}_bgtask_db_user'
+  pbmsBgTaskDB: '{{ .Release.Name }}_bgtask'
+  pbmsBgTaskDBUser: '{{ .Release.Name }}_bgtask_user'
   # Note underscore doesn't work here for Kubernetes secret, hence hyphen in the name
   pbmsBgTaskDBSecret: '{{ .Release.Name }}-bgtask'
-  pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name }}_bgtask_db_user'
+  pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name }}-bgtask-db-user'
 
   # Defaults that should be overridden by questions.yaml
-  registryDB: 'registry_db'
-  registryDBUser: 'registry_db_user'
+  registryDB: 'registry'
+  registryDBUser: 'registry_user'
   registryDBSecret: 'registry'
-  registryDBUserPasswordKey: 'registry_db_user'
+  registryDBUserPasswordKey: 'registry-db-user'
 
   mailInstallationName: commons-mail
 
