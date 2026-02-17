@@ -1,9 +1,9 @@
-{{- with .Values.staffPortalApi }}
+{{- with .Values.benePortalApi }}
 {{- if .enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "common.names.fullname" $ }}-staff-portal-api
+  name: {{ template "common.names.fullname" $ }}-bene-portal-api
   labels: {{- include "common.labels.standard" (dict "customLabels" .commonLabels "context" $) | nindent 4 }}
   {{- if .commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" .commonAnnotations "context" $ ) | nindent 4 }}
@@ -25,6 +25,6 @@ spec:
       protocol: TCP
       targetPort: http
   selector: {{- include "common.labels.matchLabels" (dict "customLabels" .podLabels "context" $) | nindent 4 }}
-    app.kubernetes.io/component: staff-portal-api
+    app.kubernetes.io/component: bene-portal-api
 {{- end }}
 {{- end }}

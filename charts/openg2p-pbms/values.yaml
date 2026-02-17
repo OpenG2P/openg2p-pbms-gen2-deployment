@@ -16,10 +16,10 @@ global:
   pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name }}-bgtask-db-user'
 
   # Defaults that should be overridden by questions.yaml
-  registryDB: 'registry'
-  registryDBUser: 'registry_user'
-  registryDBSecret: 'registry'
-  registryDBUserPasswordKey: 'registry-db-user'
+  registryDB: 'registry-gen2-family_db'
+  registryDBUser: 'registry-gen2-family_db_user'
+  registryDBSecret: 'registry-gen2-family'
+  registryDBUserPasswordKey: 'registry-gen2-family_db_user'
 
   mailInstallationName: commons-mail
 
@@ -28,7 +28,7 @@ global:
   minioInstallationName: commons-minio
 
   # TODO: Add this to questions.yaml
-  g2pPbmsBgTaskHostname: '{{ .Release.Name }}-bg-task.devops.openg2p.org'
+  g2pPbmsBgTaskHostname: '{{ .Release.Name }}-bg-task.dev.openg2p.org'
 
   g2pPbmsBgTaskClientId: 'openg2p-pbms-bg-task-{{ tpl .Release.Namespace $ }}'
   g2pPbmsBgTaskClientSecret: ''
@@ -43,7 +43,7 @@ global:
   redisInstallationName: '{{ .Release.Name }}-redis-master'
 
 # TODO: change
-hostname: admin-pbms.devops.openg2p.org
+hostname: admin-pbms.dev.openg2p.org
 
 postgres-init:
   enabled: true
@@ -72,8 +72,8 @@ odoo:
   extraAddonsUrlsToPull: ''
 
   image:
-    repository: openg2p/openg2p-pbms-core
-    tag: "3.0.0"
+    repository: tahzeer/openg2p-pbms-core
+    tag: "3.0.0-develop"
     pullPolicy: Always
 
   service:
@@ -157,8 +157,8 @@ beatProducers:
     name: ""
 
   image:
-    repository: openg2p/openg2p-pbms-bg-task-celery-beat-producers
-    tag: "3.0.0"
+    repository: tahzeer/openg2p-pbms-bg-task-celery-beat-producers
+    tag: "3.0.0-develop"
     pullPolicy: Always
 
   hostAliases: []
@@ -190,9 +190,9 @@ beatProducers:
     runAsNonRoot: true
 
   envVars:
-    BG_TASK_CELERY_BEAT_PRODUCER_FREQUENCY: 10
+    BG_TASK_CELERY_BEAT_PRODUCER_FREQUENCY: 20
     BG_TASK_CELERY_BEAT_BATCH_SIZE: 500
-    BG_TASK_CELERY_BEAT_NO_OF_TASKS_TO_PROCESS: 2
+    BG_TASK_CELERY_BEAT_NO_OF_TASKS_TO_PROCESS: 4
 
     # Background Task Database
     BG_TASK_CELERY_BEAT_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
@@ -321,8 +321,8 @@ celeryWorkers:
     name: ""
 
   image:
-    repository: openg2p/openg2p-pbms-bg-task-celery-workers
-    tag: "3.0.0"
+    repository: tahzeer/openg2p-pbms-bg-task-celery-workers
+    tag: "3.0.0-develop"
     pullPolicy: Always
 
   hostAliases: []
@@ -467,7 +467,8 @@ celeryWorkers:
 
 staffPortalApi:
   enabled: true
-  nameOverride: api
+  nameOverride: staff-portal-api
+  hostname: 'staff-{{ tpl .Values.global.g2pPbmsBgTaskHostname $ }}'
 
   keymanagerInstallationName: '{{ tpl .Values.global.keymanagerInstallationName $ }}'
 
@@ -486,8 +487,8 @@ staffPortalApi:
     name: ""
 
   image:
-    repository: openg2p/openg2p-pbms-staff-portal-api
-    tag: "3.0.0"
+    repository: tahzeer/openg2p-pbms-staff-portal-api
+    tag: "3.0.0-develop"
     pullPolicy: Always
 
   hostAliases: []
@@ -521,6 +522,8 @@ staffPortalApi:
     STAFF_PORTAL_API_DB_HOSTNAME_SR: '{{ tpl .Values.global.postgresqlHost $ }}'
     STAFF_PORTAL_API_DB_PORT_SR: 5432
     STAFF_PORTAL_API_DB_DBNAME_SR: '{{ tpl .Values.global.registryDB $ }}'
+
+    STAFF_PORTAL_API_OPENAPI_ROOT_PATH: "/"
 
     STAFF_PORTAL_API_DB_HOSTNAME: '{{ tpl .Values.global.postgresqlHost $ }}'
     STAFF_PORTAL_API_DB_PORT: 5432
@@ -574,19 +577,21 @@ staffPortalApi:
 
   sidecars: []
 
+  openapiRootPath: "/"
+
   istio:
     enabled: true
     virtualservice:
       enabled: true
-      host: ""
+      host: '{{ tpl .Values.staffPortalApi.hostname $ }}'
       gateway: "internal"
-      destination: '{{ include "common.names.fullname" . }}-staff-portal-api'
+      destination: '{{ .Release.Name }}-staff-portal-api'
       destinationPort: '{{ .Values.staffPortalApi.service.port }}'
-      prefix: /api/g2p-pbms-bg-task/
+      prefix: '{{ .Values.staffPortalApi.openapiRootPath }}'
       rewriteUri: "/"
     gateway:
       enabled: false
-      host: ""
+      host: '{{ tpl .Values.staffPortalApi.hostname $ }}'
       ingressController:
         istio: ingressgateway
       httpTlsRedirect: false
@@ -623,6 +628,177 @@ staffPortalApi:
     - 'sh'
     - '-c'
     - 'until pg_isready -U ${STAFF_PORTAL_API_DB_USERNAME} -h ${STAFF_PORTAL_API_DB_HOSTNAME} -p ${STAFF_PORTAL_API_DB_PORT:-5432} -d ${STAFF_PORTAL_API_DB_DBNAME:-pbms-bg-task-db}; do sleep 3; done'
+
+benePortalApi:
+  enabled: true
+  nameOverride: bene-portal-api
+  hostname: 'bene-{{ tpl .Values.global.g2pPbmsBgTaskHostname $ }}'
+
+  keymanagerInstallationName: '{{ tpl .Values.global.keymanagerInstallationName $ }}'
+
+  podLabels: {}
+  commonLabels: {}
+  commonAnnotations: {}
+  podAnnotations: {}
+
+  replicaCount: 1
+
+  updateStrategy:
+    type: RollingUpdate
+
+  serviceAccount:
+    create: false
+    name: ""
+
+  image:
+    repository: tahzeer/openg2p-pbms-bene-portal-api
+    tag: "3.0.0-develop-bene"
+    pullPolicy: Always
+
+  hostAliases: []
+  affinity: {}
+  podAffinityPreset: ""
+  podAntiAffinityPreset: soft
+
+  nodeAffinityPreset:
+    type: ""
+    key: ""
+    values: []
+
+  nodeSelector: {}
+  tolerations: []
+
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+
+  initContainers: []
+
+  lifecycleHooks: {}
+
+  containerSecurityContext:
+    enabled: false
+    runAsUser: 1001
+    runAsNonRoot: true
+
+  envVars:
+    COMMON_AUTH_DEFAULT_ISSUERS: '["https://esignet.dev.openg2p.org"]'
+    COMMON_AUTH_DEFAULT_JWKS_URLS: >-
+      ["https://esignet.dev.openg2p.org/v1/esignet/oauth/.well-known/jwks.json"]
+    PBMS_BENE_PORTAL_API_OPENAPI_ROOT_PATH: "/"
+
+    # PBMS Database
+    PBMS_BENE_PORTAL_API_DB_USERNAME_PBMS: '{{ tpl .Values.global.pbmsDBUser $ }}'
+    PBMS_BENE_PORTAL_API_DB_HOSTNAME_PBMS: '{{ tpl .Values.global.postgresqlHost $ }}'
+    PBMS_BENE_PORTAL_API_DB_PORT_PBMS: 5432
+    PBMS_BENE_PORTAL_API_DB_DBNAME_PBMS: '{{ tpl .Values.global.pbmsDB $ }}'
+
+    PBMS_BENE_PORTAL_API_OPENAPI_ROOT_PATH: "/"
+
+    # Background Task Database
+    PBMS_BENE_PORTAL_API_DB_USERNAME_BG_TASK: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
+    PBMS_BENE_PORTAL_API_DB_HOSTNAME_BG_TASK: '{{ tpl .Values.global.postgresqlHost $ }}'
+    PBMS_BENE_PORTAL_API_DB_PORT_BG_TASK: 5432
+    PBMS_BENE_PORTAL_API_DB_DBNAME_BG_TASK: '{{ tpl .Values.global.pbmsBgTaskDB $ }}'
+
+  envVarsFrom:
+    PBMS_BENE_PORTAL_API_DB_PASSWORD_PBMS:
+      secretKeyRef:
+        name: '{{ tpl .Values.global.pbmsDBSecret $ }}'
+        key:  '{{ tpl .Values.global.pbmsDBUserPasswordKey $ }}'
+    PBMS_BENE_PORTAL_API_DB_PASSWORD_BG_TASK:
+      secretKeyRef:
+        name: '{{ tpl .Values.global.pbmsBgTaskDBSecret $ }}'
+        key: '{{ tpl .Values.global.pbmsBgTaskDBUserPasswordKey $ }}'
+
+  resources: {}
+
+  startupProbe:
+    enabled: true
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 30
+    successThreshold: 1
+
+  livenessProbe:
+    enabled: true
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 20
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+
+  readinessProbe:
+    enabled: true
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+
+  sidecars: []
+
+  openapiRootPath: "/"
+
+  istio:
+    enabled: true
+    virtualservice:
+      enabled: true
+      host: '{{ tpl .Values.benePortalApi.hostname $ }}'
+      gateway: "internal"
+      destination: '{{ .Release.Name }}-bene-portal-api'
+      destinationPort: '{{ .Values.benePortalApi.service.port }}'
+      prefix: '{{ .Values.benePortalApi.openapiRootPath }}'
+      rewriteUri: "/"
+    gateway:
+      enabled: false
+      host: '{{ tpl .Values.benePortalApi.hostname $ }}'
+      ingressController:
+        istio: ingressgateway
+      httpTlsRedirect: false
+      httpEnabled: true
+      httpsEnabled: false
+      tls:
+        mode: SIMPLE
+        credentialName: ""
+
+  containerPort: 8000
+
+  service:
+    type: ClusterIP
+    port: 80
+    nodePorts:
+      http: ""
+      https: ""
+    externalTrafficPolicy: Cluster
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 1
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+
+  postgresCheckerInit:
+    enabled: true
+    image:
+      repository: jbergknoff/postgresql-client
+      tag: latest
+      pullPolicy: IfNotPresent
+    command:
+    - 'sh'
+    - '-c'
+    - 'until pg_isready -U ${PBMS_BENE_PORTAL_API_DB_USERNAME_BG_TASK} -h ${PBMS_BENE_PORTAL_API_DB_HOSTNAME_BG_TASK} -p ${PBMS_BENE_PORTAL_API_DB_PORT_BG_TASK:-5432} -d ${PBMS_BENE_PORTAL_API_DB_DBNAME_BG_TASK:-pbms-bg-task-db}; do sleep 3; done'
 
 selfServiceIngress:
   enabled: false
