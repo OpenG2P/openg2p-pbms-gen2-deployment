@@ -1,9 +1,9 @@
-{{- with .Values.staffPortalApi }}
+{{- with .Values.benePortalApi }}
 {{- if and .enabled .istio.enabled .istio.virtualservice.enabled }}
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: {{ template "common.names.fullname" $ }}-staff-portal-api
+  name: {{ template "common.names.fullname" $ }}-bene-portal-api
   labels: {{- include "common.labels.standard" (dict "customLabels" .commonLabels "context" $) | nindent 4 }}
   {{- if .commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" .commonAnnotations "context" $ ) | nindent 4 }}
@@ -28,7 +28,7 @@ spec:
     {{- end }}
     route:
     - destination:
-        host: {{ template "common.names.fullname" $ }}-staff-portal-api
+        host: {{ template "common.names.fullname" $ }}-bene-portal-api
         port:
           number: {{ .service.port }}
 {{- end }}

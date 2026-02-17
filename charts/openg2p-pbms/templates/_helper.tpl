@@ -192,5 +192,32 @@ Render Env values section for staff-portal-api
 {{- include "pbms.baseEnvVars" (dict "envVars" $envVars "context" $) }}
 {{- end -}}
 
+{{/*
+Templates for openg2p-pbms-bene-portal-api
+*/}}
 
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "pbms.bene-portal-api.serviceAccountName" -}}
+{{- if .Values.benePortalApi.serviceAccount.create -}}
+{{ default (include "common.names.fullname" .) .Values.benePortalApi.serviceAccount.name }}
+{{- else -}}
+{{ default "default" .Values.benePortalApi.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
 
+{{/*
+Return the proper Docker Image Registry Secret Names
+*/}}
+{{- define "pbms.bene-portal-api.imagePullSecrets" -}}
+{{- include "common.images.pullSecrets" (dict "images" (list .Values.benePortalApi.image .Values.benePortalApi.postgresCheckerInit.image) "global" .Values.global) -}}
+{{- end -}}
+
+{{/*
+Render Env values section for bene-portal-api
+*/}}
+{{- define "pbms.bene-portal-api.envVars" -}}
+{{- $envVars := merge (deepCopy .Values.benePortalApi.envVars) (deepCopy .Values.benePortalApi.envVarsFrom) -}}
+{{- include "pbms.baseEnvVars" (dict "envVars" $envVars "context" $) }}
+{{- end -}}

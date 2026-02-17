@@ -1,9 +1,9 @@
-{{- with .Values.celeryWorkers }}
+{{- with .Values.benePortalApi }}
 {{- if .enabled }}
 apiVersion: {{ include "common.capabilities.deployment.apiVersion" $ }}
 kind: Deployment
 metadata:
-  name: {{ include "common.names.fullname" $ }}-celery-workers
+  name: {{ include "common.names.fullname" $ }}-bene-portal-api
   labels: {{- include "common.labels.standard" (dict "customLabels" .commonLabels "context" $) | nindent 4 }}
   {{- if .commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" .commonAnnotations "context" $ ) | nindent 4 }}
@@ -15,17 +15,17 @@ spec:
   {{- end }}
   selector:
     matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" .podLabels "context" $) | nindent 6 }}
-      app.kubernetes.io/component: celery-workers
+      app.kubernetes.io/component: bene-portal-api
   template:
     metadata:
       labels: {{- include "common.labels.standard" (dict "customLabels" .podLabels "context" $) | nindent 8 }}
-        app.kubernetes.io/component: celery-workers
+        app.kubernetes.io/component: bene-portal-api
       {{- if .podAnnotations }}
       annotations: {{- include "common.tplvalues.render" (dict "value" .podAnnotations "context" $) | nindent 8 }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "pbms.celery-workers.serviceAccountName" $ }}
-      {{- include "pbms.celery-workers.imagePullSecrets" $ | nindent 6 }}
+      serviceAccountName: {{ include "pbms.bene-portal-api.serviceAccountName" $ }}
+      {{- include "pbms.bene-portal-api.imagePullSecrets" $ | nindent 6 }}
       {{- if .hostAliases }}
       hostAliases: {{- include "common.tplvalues.render" (dict "value" .hostAliases "context" $) | nindent 8 }}
       {{- end }}
@@ -55,10 +55,10 @@ spec:
           image: {{ include "common.images.image" (dict "imageRoot" .postgresCheckerInit.image "global" $.Values.global) }}
           imagePullPolicy: {{ .postgresCheckerInit.image.pullPolicy }}
           command: {{- include "common.tplvalues.render" (dict "value" .postgresCheckerInit.command "context" $) | nindent 12 }}
-          env: {{- include "pbms.celery-workers.envVars" $ | indent 12 }}
+          env: {{- include "pbms.bene-portal-api.envVars" $ | indent 12 }}
         {{- end }}
       containers:
-        - name: g2p-pbms-bg-task-celery-worker
+        - name: g2p-pbms-bene-portal-api
           image: {{ include "common.images.image" (dict "imageRoot" .image "global" $.Values.global) }}
           imagePullPolicy: {{ .image.pullPolicy }}
           {{- if .lifecycleHooks }}
@@ -67,7 +67,10 @@ spec:
           {{- if .containerSecurityContext.enabled }}
           securityContext: {{- include "common.tplvalues.render" (dict "value" (omit .containerSecurityContext "enabled") "context" $) | nindent 12 }}
           {{- end }}
-          env: {{- include "pbms.celery-workers.envVars" $ | indent 12 }}
+          env: {{- include "pbms.bene-portal-api.envVars" $ | indent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .containerPort }}
           {{- if .resources }}
           resources: {{- include "common.tplvalues.render" (dict "value" .resources "context" $) | nindent 12 }}
           {{- end }}
