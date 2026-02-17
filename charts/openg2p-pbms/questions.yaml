@@ -60,6 +60,33 @@ questions:
   group: Background Task Settings
   show_if: "openg2p-pbms-bg-task-celery-workers.enabled=true"
 
+# Portal API Settings
+- variable: staffPortalApi.enabled
+  description: Enable Staff Portal API component
+  type: boolean
+  label: Enable Staff Portal API
+  group: Portal API Settings
+
+- variable: benePortalApi.enabled
+  description: Enable Bene Portal API component
+  type: boolean
+  label: Enable Bene Portal API
+  group: Portal API Settings
+
+- variable: benePortalApi.envVars.COMMON_AUTH_DEFAULT_ISSUERS
+  description: Default list of OIDC issuers for Bene Portal API
+  type: string
+  label: Bene Portal API Default Issuers
+  group: Portal API Settings
+  show_if: "benePortalApi.enabled=true"
+
+- variable: benePortalApi.envVars.COMMON_AUTH_DEFAULT_JWKS_URLS
+  description: Default list of JWKS URLs for Bene Portal API
+  type: string
+  label: Bene Portal API Default JWKS URLs
+  group: Portal API Settings
+  show_if: "benePortalApi.enabled=true"
+
 # Registry settings
 - variable: global.registryDB 
   description: Name of the Registry DB in PostgreSQL 
@@ -84,5 +111,7 @@ questions:
   type: string
   label: Registry DB Secret Key with User Password
   group: Registry 
+
+
 
 # End of main PBMS/values.yaml-driven questions.

@@ -693,8 +693,6 @@ benePortalApi:
     PBMS_BENE_PORTAL_API_DB_PORT_PBMS: 5432
     PBMS_BENE_PORTAL_API_DB_DBNAME_PBMS: '{{ tpl .Values.global.pbmsDB $ }}'
 
-    PBMS_BENE_PORTAL_API_OPENAPI_ROOT_PATH: "/"
-
     # Background Task Database
     PBMS_BENE_PORTAL_API_DB_USERNAME_BG_TASK: '{{ tpl .Values.global.pbmsBgTaskDBUser $ }}'
     PBMS_BENE_PORTAL_API_DB_HOSTNAME_BG_TASK: '{{ tpl .Values.global.postgresqlHost $ }}'
