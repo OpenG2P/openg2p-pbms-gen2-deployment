@@ -16,10 +16,10 @@ global:
   pbmsBgTaskDBUserPasswordKey: '{{ .Release.Name }}-bgtask-db-user'
 
   # Defaults that should be overridden by questions.yaml
-  registryDB: 'registry-gen2-family_db'
-  registryDBUser: 'registry-gen2-family_db_user'
-  registryDBSecret: 'registry-gen2-family'
-  registryDBUserPasswordKey: 'registry-gen2-family_db_user'
+  registryDB: 'registry'
+  registryDBUser: 'registry_user'
+  registryDBSecret: 'registry'
+  registryDBUserPasswordKey: 'registry-db-user'
 
   mailInstallationName: commons-mail
 
@@ -72,7 +72,7 @@ odoo:
   extraAddonsUrlsToPull: ''
 
   image:
-    repository: tahzeer/openg2p-pbms-core
+    repository: openg2p/openg2p-pbms-core
     tag: "3.0.0-develop"
     pullPolicy: Always
 
@@ -157,7 +157,7 @@ beatProducers:
     name: ""
 
   image:
-    repository: tahzeer/openg2p-pbms-bg-task-celery-beat-producers
+    repository: openg2p/openg2p-pbms-bg-task-celery-beat-producers
     tag: "3.0.0-develop"
     pullPolicy: Always
 
@@ -321,7 +321,7 @@ celeryWorkers:
     name: ""
 
   image:
-    repository: tahzeer/openg2p-pbms-bg-task-celery-workers
+    repository: openg2p/openg2p-pbms-bg-task-celery-workers
     tag: "3.0.0-develop"
     pullPolicy: Always
 
@@ -487,7 +487,7 @@ staffPortalApi:
     name: ""
 
   image:
-    repository: tahzeer/openg2p-pbms-staff-portal-api
+    repository: openg2p/openg2p-pbms-staff-portal-api
     tag: "3.0.0-develop"
     pullPolicy: Always
 
@@ -651,8 +651,8 @@ benePortalApi:
     name: ""
 
   image:
-    repository: tahzeer/openg2p-pbms-bene-portal-api
-    tag: "3.0.0-develop-bene"
+    repository: openg2p/openg2p-pbms-bene-portal-api
+    tag: "3.0.0-develop"
     pullPolicy: Always
 
   hostAliases: []
