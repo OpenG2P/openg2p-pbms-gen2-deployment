@@ -488,7 +488,7 @@ staffPortalApi:
 
   image:
     repository: openg2p/openg2p-pbms-staff-portal-api
-    tag: "3.0.0"
+    tag: "3.1.0"
     pullPolicy: Always
 
   hostAliases: []
